@@ -60,7 +60,7 @@ pattern = ^stats\..*
 retentions = 1s:6h
 EOF
  
-sudo cp /tmp/storage-schemas.conf storage-schemas.conf
+sudo cp /tmp/storage-schemas.conf /opt/graphite/conf/storage-schemas.conf
 
 # Make sure log dir exists for webapp
 sudo mkdir -p /opt/graphite/storage/log/webapp
