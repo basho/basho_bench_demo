@@ -128,7 +128,7 @@ cd ../ && rm -rf otp_src_R15B01 otp_src_R15B01.tar.gz
 cd /opt && sudo git clone git://github.com/basho/basho_bench.git
 cd basho_bench
 sudo make all
-sudo mkdir /opt/basho_bench/results
+sudo mkdir /opt/basho_bench/results /opt/basho_bench/config
 sudo chown www-data /opt/basho_bench/results
 
 sudo python /opt/graphite/bin/carbon-cache.py start
