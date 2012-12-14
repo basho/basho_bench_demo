@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="css/index.css" type="text/css" media="screen" charset="utf-8">
+    <style type="text/css">
+
+      /*
+       * demo page bootstrap customizations
+       */
+      #hero-two{
+        text-align:center;
+      }
+      #hero-two .glview{
+        padding-top: 5em;
+        padding-right: 6em;
+	float: right;
+      }
+      .hero-row{
+        margin-bottom:5em;
+        text-shadow: 0px 1px 4px black;
+      }
+      #hero-one, #hero-three{ padding-top:5em;}
+      h1{
+	color: #EAEAEA;
+      }
+      #graphite{
+        stroke-width: 2px;
+      }
+
+
+      /*
+       * graphene high-contrast theme customizations
+       */
+      svg.tsview{
+        background:none;
+      }
+      .ggview .gauge circle.outer{
+        stroke:none;
+        fill:none;
+      }
+      .ggview .gauge circle.inner{
+        stroke:none;
+        fill:none;
+      }
+      body{
+        background: url(images/diagmonds.png);
+	color:#EAEAEA;
+      }
+      .span4{
+        text-align:center;
+      }
+      tsview.g text.title{
+        text-align: center;
+      }
+      tspan.min-tag,tspan.max-tag{
+        display: none;
+      }
+      </style>
+  </head>
+  <body>
+    
+
+    <div id="dashboard" class="container-fluid">
+      <div class="row-fluid hero-row">
+        <div id="hero-one" class="span4">
+        </div>
+        <div id="hero-two" class="span4">
+          <h1>Basho Bench Dashboard</h1>
+          <br/><br/>
+          <a id="start" class="btn btn-large btn-orange">Start Test</a> 
+          <span style="font-size:1.2em">&nbsp;</span>
+          <a id="verify" class="btn btn-large btn-orange">Verify Data</a> 
+          <span style="font-size:1.2em">&nbsp;</span>
+          <a id="stop" class="btn btn-large btn-blk">Reset</a>
+        </div>
+        <div id="hero-three" class="span3">
+        </div>
+      </div>
+
+      <div id="loading">
+        <p><img src="images/loading.gif" /> Please Wait</p>
+      </div> 
+
+      <div class="row-fluid">
+        <div id="g1-1" class="span4">
+        </div>
+        <div id="g1-2" class="span4">
+        </div>
+        <div id="g1-3" class="span4">
+        </div>
+        <div id="g1-4" class="span4">
+        </div>
+      </div>
+
+      <div class="row-fluid">
+        <div id="g2-1" class="span4">
+        </div>
+        <div id="g2-2" class="span4">
+        </div>
+        <div id="g2-3" class="span4">
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="js/vendor/js/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="js/graphene.min.js"></script>    
+    <script type="text/javascript" src="js/graphene.js"></script>    
+    <script type="text/javascript" src="js/index.js"></script>    
+  </body>
+</html>
