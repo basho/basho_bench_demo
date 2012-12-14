@@ -41,8 +41,7 @@ sudo pip install -r /tmp/graphite_reqs.txt
 #
 # Configure carbon
 #
-cd /opt/graphite/conf/
-sudo cp carbon.conf.example carbon.conf
+sudo cp /opt/graphite/conf/carbon.conf.example /opt/graphite/conf/carbon.conf
  
 # Create storage schema and copy it over
 # Using the sample as provided in the statsd README
@@ -78,22 +77,65 @@ sudo cp /tmp/local_settings.py /opt/graphite/webapp/graphite/local_settings.py
 
 sudo cp /opt/graphite/conf/graphite.wsgi.example /opt/graphite/conf/graphite.wsgi
 
-sudo python manage.py syncdb  # Follow the prompts, creating a superuser is optional
+sudo python /opt/graphite/webapp/graphite/manage.py syncdb  # Follow the prompts, creating a superuser is optional
 
 # Configure Apache
-sudo rm -f /etc/apache2/sites-enabled/000-default
-sudo cp graphite.conf /etc/apache2/sites-available/
+cat >> /tmp/graphite.conf << EOF
+WSGISocketPrefix /var/run/apache2
+<VirtualHost *:80>
+        ServerName graphite
+        DocumentRoot "/opt/graphite/webapp"
+        ErrorLog /opt/graphite/storage/log/webapp/error.log
+        CustomLog /opt/graphite/storage/log/webapp/access.log common
+
+        WSGIDaemonProcess graphite processes=5 threads=5 display-name='%{GROUP}' inactivity-timeout=120
+        WSGIProcessGroup graphite
+        WSGIApplicationGroup %{GLOBAL}
+        WSGIImportScript /opt/graphite/conf/graphite.wsgi process-group=graphite application-group=%{GLOBAL}
+
+        WSGIScriptAlias / /opt/graphite/conf/graphite.wsgi
+
+        Alias /content/ /opt/graphite/webapp/content/
+        <Location "/content/">
+                SetHandler None
+        </Location>
+
+        Alias /demo /opt/demo/
+        <Location "/demo/">
+                SetHandler None
+                DirectoryIndex index.html
+        </Location>
+
+        # The graphite.wsgi file has to be accessible by apache. It won't
+        # be visible to clients because of the DocumentRoot though.
+        <Directory /opt/graphite/conf/>
+                Order deny,allow
+                Allow from all
+        </Directory>
+
+        ScriptAlias /cgi-bin/ /opt/app/
+        <Directory "/usr/lib/cgi-bin">
+                AllowOverride None
+                Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+                Order allow,deny
+                Allow from all
+        </Directory>
+</VirtualHost>
+EOF
+
+sudo cp /tmp/graphite.conf /etc/apache2/sites-available/
 sudo ln -s /etc/apache2/sites-available/graphite.conf /etc/apache2/sites-enabled/graphite.conf
+sudo rm -f /etc/apache2/sites-enabled/000-default
 
 # Install Demo app
 sudo cp -R app /opt/
-sudo cp -R demo /opt/graphite/webapp/
+sudo cp -R demo /opt/
 
 sudo chown -R www-data /opt/graphite/storage/log/webapp
 sudo chown -R www-data /opt/graphite/storage
 
 # statsd
-cd /opt && sudo git clone git://github.com/etsy/statsd.git
+sudo git clone git://github.com/etsy/statsd.git /opt/statsd
  
 # StatsD configuration
 cat >> /tmp/localConfig.js << EOF
@@ -117,7 +159,6 @@ EOF
 sudo cp /tmp/rc.local /etc/rc.local
 
 # Erlang
-cd /opt
 wget http://erlang.org/download/otp_src_R15B01.tar.gz
 tar zxvf otp_src_R15B01.tar.gz
 cd otp_src_R15B01
@@ -125,8 +166,8 @@ cd otp_src_R15B01
 cd ../ && rm -rf otp_src_R15B01 otp_src_R15B01.tar.gz
 
 # Basho Bench
-cd /opt && sudo git clone git://github.com/basho/basho_bench.git
-cd basho_bench
+sudo git clone git://github.com/basho/basho_bench.git /opt/basho_bench
+cd /opt/basho_bench
 sudo make all
 sudo mkdir /opt/basho_bench/results /opt/basho_bench/config
 sudo chown www-data /opt/basho_bench/results
