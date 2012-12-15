@@ -66,8 +66,6 @@ sudo cp /tmp/storage-schemas.conf /opt/graphite/conf/storage-schemas.conf
 
 # Make sure log dir exists for webapp
 sudo mkdir -p /opt/graphite/storage/log/webapp
-sudo chown -R www-data /opt/graphite/storage/log/webapp
-sudo chown -R www-data /opt/graphite/storage
  
 # Copy over the local settings file
 cat >> /tmp/local_settings.py << EOF
@@ -79,8 +77,12 @@ EOF
 
 sudo cp /tmp/local_settings.py /opt/graphite/webapp/graphite/local_settings.py
 
-# Initialize the database
-sudo python /opt/graphite/webapp/graphite/manage.py syncdb  # Follow the prompts, creating a superuser is optional
+# Initialize the database non-interactively.  Default superuser credentials are admin:admin
+sudo cp $SOURCE_DIR/initial_data.json /opt/graphite/webapp/graphite/
+sudo python /opt/graphite/webapp/graphite/manage.py syncdb --noinput
+
+# Allow graphite web app to write to database and logs
+sudo chown -R www-data /opt/graphite/storage
 
 sudo cp /opt/graphite/conf/graphite.wsgi.example /opt/graphite/conf/graphite.wsgi
 
