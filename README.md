@@ -15,4 +15,4 @@ basho_bench_gui
 
 **Viewing the GUI**
 
-Your GUI will be accessible at http://<IP_or_hostname>/demo
+Your GUI will be accessible at http://{IP_or_hostname}/demo
