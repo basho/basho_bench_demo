@@ -5,24 +5,51 @@
     <link rel="stylesheet" href="css/index.css" type="text/css" media="screen" charset="utf-8">
     <style type="text/css">
 
+/* HEADER PORTION */
+html {
+    background: url(images/gui-bg.jpg) left top repeat #2d2d2d;
+}
+#header {
+    background: url(images/header-bg.png) left top repeat-x transparent;
+    height: 67px;
+    width: auto;
+    margin: 0 0 16px 0;
+    position: relative;
+}
+#basho-logo {
+    background: url(images/basho-logo.png) left top no-repeat transparent;
+    width: 43px;
+    height: 44px;
+    display: block;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+}
+
+.has-cut   {background: url(images/cut-bg.png) left bottom repeat-x transparent;}
+
       /*
        * demo page bootstrap customizations
        */
-      #hero-two{
-        text-align:center;
-      }
       #hero-two .glview{
-        padding-top: 5em;
-        padding-right: 6em;
-	float: right;
+        padding-top: 8em;
+        float: right;
+      } 
+      #hero-three .glview{
+        padding-top: 8em;
+        float: left;
       }
       .hero-row{
-        margin-bottom:5em;
+        padding-bottom:4em;
+        margin-top: -1em;
         text-shadow: 0px 1px 4px black;
       }
-      #hero-one, #hero-three{ padding-top:5em;}
+      #hero-one, #hero-four{ padding-top:1em;}
       h1{
-	color: #EAEAEA;
+	color: #DFDFDF;
+        display: block;
+        float: left;
+        padding: 15px 0 0 12px;
       }
       #graphite{
         stroke-width: 2px;
@@ -33,19 +60,19 @@
        * graphene high-contrast theme customizations
        */
       svg.tsview{
-        background:none;
+       // background:none;
       }
       .ggview .gauge circle.outer{
-        stroke:none;
-        fill:none;
+       // stroke:none;
+       // fill:none;
       }
       .ggview .gauge circle.inner{
-        stroke:none;
-        fill:none;
+      //  stroke:none;
+      //  fill:none;
       }
       body{
-        background: url(images/diagmonds.png);
-	color:#EAEAEA;
+      //  background: url(images/diagmonds.png);
+	color:#DFDFDF;
       }
       .span4{
         text-align:center;
@@ -56,25 +83,37 @@
       tspan.min-tag,tspan.max-tag{
         display: none;
       }
+      #dashboard{
+        padding-top: 8px;
+      }
+      .container-fluid{
+        padding: 0;
+      }
       </style>
   </head>
   <body>
     
 
     <div id="dashboard" class="container-fluid">
-      <div class="row-fluid hero-row">
-        <div id="hero-one" class="span4">
-        </div>
-        <div id="hero-two" class="span4">
-          <h1>Basho Bench Dashboard</h1>
-          <br/><br/>
+      <div id="header">
+        <h1>Basho Bench Dashboard</h1>
+        <a id="basho-logo" href="http://www.basho.com" target="_blank"></a>
+      </div>
+      <div id="controls" style="text-align: center;">
           <a id="start" class="btn btn-large btn-orange">Start Test</a> 
           <span style="font-size:1.2em">&nbsp;</span>
           <a id="verify" class="btn btn-large btn-orange">Verify Data</a> 
           <span style="font-size:1.2em">&nbsp;</span>
           <a id="stop" class="btn btn-large btn-blk">Reset</a>
+      </div> 
+      <div class="row-fluid hero-row has-cut">
+        <div id="hero-one" class="span4">
         </div>
-        <div id="hero-three" class="span3">
+        <div id="hero-two" class="span2">
+        </div>
+        <div id="hero-three" class="span2">
+        </div>
+        <div id="hero-four" class="span4">
         </div>
       </div>
 

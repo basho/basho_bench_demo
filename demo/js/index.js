@@ -47,7 +47,7 @@ function statsSourceUrl(target, opts) {
       source: statsSourceUrl("cluster_error_count"),
       refresh_interval: 1000,
       GaugeLabel: {
-        parent: "#hero-two",
+        parent: "#hero-three",
         title: "Error Count",
         value_format: "02d",
       }
@@ -66,7 +66,7 @@ function statsSourceUrl(target, opts) {
       source: statsSourceUrl("cluster_read_throughput"),
       refresh_interval: 1000,
       GaugeLabel: {
-        parent: "#hero-three",
+        parent: "#hero-four",
         title: "Read Throughput",
         unit: "req/s"
       }
@@ -75,7 +75,7 @@ function statsSourceUrl(target, opts) {
       source: statsSourceUrl("cluster_read_latency"),
       refresh_interval: 4000,
       GaugeGadget: {
-        parent: "#hero-three",
+        parent: "#hero-four",
         title: "Latency",
         to: 50
       }
