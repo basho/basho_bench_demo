@@ -1,12 +1,18 @@
 #!/bin/bash
  
-# node.js using PPA (for statsd)
+SOURCE_DIR=$(pwd)
+
+#
+# Package Installation
+# 
+
+# node.js using PPA (for StatsD)
 sudo apt-get -y install python-software-properties
-sudo apt-add-repository ppa:chris-lea/node.js
+sudo apt-add-repository -y ppa:chris-lea/node.js
 sudo apt-get update
 sudo apt-get -y install nodejs npm
  
-# Install git to get statsd
+# Install git to get StatsD
 sudo apt-get -y install git
  
 # System level dependencies for Graphite
@@ -43,10 +49,6 @@ sudo pip install -r /tmp/graphite_reqs.txt
 #
 sudo cp /opt/graphite/conf/carbon.conf.example /opt/graphite/conf/carbon.conf
  
-# Create storage schema and copy it over
-# Using the sample as provided in the statsd README
-# https://github.com/etsy/statsd#graphite-schema
- 
 cat >> /tmp/storage-schemas.conf << EOF
 # Schema definitions for Whisper files. Entries are scanned in order,
 # and first match wins. This file is scanned for changes every 60 seconds.
@@ -64,8 +66,10 @@ sudo cp /tmp/storage-schemas.conf /opt/graphite/conf/storage-schemas.conf
 
 # Make sure log dir exists for webapp
 sudo mkdir -p /opt/graphite/storage/log/webapp
+sudo chown -R www-data /opt/graphite/storage/log/webapp
+sudo chown -R www-data /opt/graphite/storage
  
-# Copy over the local settings file and initialize database
+# Copy over the local settings file
 cat >> /tmp/local_settings.py << EOF
 LOG_CACHE_PERFORMANCE = True
 LOG_METRIC_ACCESS = True
@@ -75,11 +79,14 @@ EOF
 
 sudo cp /tmp/local_settings.py /opt/graphite/webapp/graphite/local_settings.py
 
-sudo cp /opt/graphite/conf/graphite.wsgi.example /opt/graphite/conf/graphite.wsgi
-
+# Initialize the database
 sudo python /opt/graphite/webapp/graphite/manage.py syncdb  # Follow the prompts, creating a superuser is optional
 
+sudo cp /opt/graphite/conf/graphite.wsgi.example /opt/graphite/conf/graphite.wsgi
+
+#
 # Configure Apache
+#
 cat >> /tmp/graphite.conf << EOF
 WSGISocketPrefix /var/run/apache2
 <VirtualHost *:80>
@@ -124,20 +131,16 @@ WSGISocketPrefix /var/run/apache2
 EOF
 
 sudo cp /tmp/graphite.conf /etc/apache2/sites-available/
+
+# Enable the graphite vhost
 sudo ln -s /etc/apache2/sites-available/graphite.conf /etc/apache2/sites-enabled/graphite.conf
 sudo rm -f /etc/apache2/sites-enabled/000-default
 
-# Install Demo app
-sudo cp -R app /opt/
-sudo cp -R demo /opt/
-
-sudo chown -R www-data /opt/graphite/storage/log/webapp
-sudo chown -R www-data /opt/graphite/storage
-
-# statsd
+#
+# Install StatsD
+#
 sudo git clone git://github.com/etsy/statsd.git /opt/statsd
- 
-# StatsD configuration
+
 cat >> /tmp/localConfig.js << EOF
 {
   graphitePort: 2003
@@ -149,31 +152,57 @@ EOF
  
 sudo cp /tmp/localConfig.js /opt/statsd/localConfig.js
 
-# rc.local configuration
-cat >> /tmp/rc.local << EOF
-rm -rf /opt/graphite/storage/whisper/*
-python /opt/graphite/bin/carbon-cache.py start
-nohup node /opt/statsd/stats.js /opt/statsd/localConfig.js &
-EOF
-
-sudo cp /tmp/rc.local /etc/rc.local
-
-# Erlang
+#
+# Install Erlang
+#
 wget http://erlang.org/download/otp_src_R15B01.tar.gz
 tar zxvf otp_src_R15B01.tar.gz
 cd otp_src_R15B01
 ./configure && make && sudo make install
 cd ../ && rm -rf otp_src_R15B01 otp_src_R15B01.tar.gz
 
-# Basho Bench
+#
+# Install Basho Bench
+#
 sudo git clone git://github.com/basho/basho_bench.git /opt/basho_bench
-cp graphite_demo.patch /opt/basho_bench/
 cd /opt/basho_bench
+
+# Apply demo patch and compile
+cp $SOURCE_DIR/graphite_demo.patch /opt/basho_bench/
 git am --signoff < graphite_demo.patch
 sudo make all
+
+#
+# Install Demo app
+#
+sudo cp -R $SOURCE_DIR/app /opt/
+sudo cp -R $SOURCE_DIR/demo /opt/
+
+# Set permissions so web app can interact with graphite and basho_bench
 sudo mkdir /opt/basho_bench/config /opt/basho_bench/results
 sudo chown www-data /opt/basho_bench/config /opt/basho_bench/results
 
+#
+# rc.local configuration
+#
+cat >> /tmp/rc.local << EOF
+# Purges old graphite data
+rm -rf /opt/graphite/storage/whisper/*
+
+# Starts graphite backend
+python /opt/graphite/bin/carbon-cache.py start
+
+# Starts StatsD
+nohup node /opt/statsd/stats.js /opt/statsd/localConfig.js &
+
+exit 0
+EOF
+
+sudo cp /tmp/rc.local /etc/rc.local
+
+#
+# Start the services
+#
 sudo python /opt/graphite/bin/carbon-cache.py start
 sudo nohup node /opt/statsd/stats.js /opt/statsd/localConfig.js &
 sudo apache2ctl restart
