@@ -1,0 +1,50 @@
+From 17ab491dc3a94cfabadc88ce33c73a4b125be9bd Mon Sep 17 00:00:00 2001
+From: Dean Proctor <dproctor@basho.com>
+Date: Sat, 15 Dec 2012 11:59:14 -0200
+Subject: [PATCH] changes to support graphite demo
+
+---
+ priv/summary.r                      |    2 +-
+ src/basho_bench.app.src             |    2 +-
+ src/basho_bench_driver_riakc_pb.erl |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/priv/summary.r b/priv/summary.r
+index 16d0ce9..216c17c 100755
+--- a/priv/summary.r
++++ b/priv/summary.r
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env Rscript --vanilla
++#!/usr/bin/Rscript --vanilla
+ 
+ # Parse the --file= argument out of command line args and
+ # determine where base directory is so that we can source
+diff --git a/src/basho_bench.app.src b/src/basho_bench.app.src
+index 7ab2bb2..d2be264 100644
+--- a/src/basho_bench.app.src
++++ b/src/basho_bench.app.src
+@@ -52,7 +52,7 @@
+          %%
+          %% Interval on which to report latencies and status (seconds)
+          %%
+-         {report_interval, 10},
++         {report_interval, 1},
+ 
+          %%
+          %% Key generators
+diff --git a/src/basho_bench_driver_riakc_pb.erl b/src/basho_bench_driver_riakc_pb.erl
+index 86f6181..fb7a2a7 100644
+--- a/src/basho_bench_driver_riakc_pb.erl
++++ b/src/basho_bench_driver_riakc_pb.erl
+@@ -123,7 +123,7 @@ run(get, KeyGen, _ValueGen, State) ->
+         {ok, _} ->
+             {ok, State};
+         {error, notfound} ->
+-            {ok, State};
++            {error, notfound, State};
+         {error, Reason} ->
+             {error, Reason, State}
+     end;
+-- 
+1.7.9.5
+

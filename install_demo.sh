@@ -167,10 +167,12 @@ cd ../ && rm -rf otp_src_R15B01 otp_src_R15B01.tar.gz
 
 # Basho Bench
 sudo git clone git://github.com/basho/basho_bench.git /opt/basho_bench
+cp graphite_demo.patch /opt/basho_bench/
 cd /opt/basho_bench
+git am --signoff < graphite_demo.patch
 sudo make all
-sudo mkdir /opt/basho_bench/results /opt/basho_bench/config
-sudo chown www-data /opt/basho_bench/results
+sudo mkdir /opt/basho_bench/config /opt/basho_bench/results
+sudo chown www-data /opt/basho_bench/config /opt/basho_bench/results
 
 sudo python /opt/graphite/bin/carbon-cache.py start
 sudo nohup node /opt/statsd/stats.js /opt/statsd/localConfig.js &
