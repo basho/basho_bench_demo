@@ -173,6 +173,21 @@ cd /opt/basho_bench
 cp $SOURCE_DIR/graphite_demo.patch /opt/basho_bench/
 git am --signoff < graphite_demo.patch
 sudo make all
+sudo chmod 755 /opt/basho_bench/basho_bench
+
+cat >> /tmp/riakc_pb.template << EOF
+{mode, max}.
+{duration, 10}.
+{concurrent, 1}.
+{driver, basho_bench_driver_riakc_pb}.
+{key_generator, {int_to_bin, {sequential_int, %OPERATIONS%}}}.
+{value_generator, {fixed_bin, 1}}.
+{riakc_pb_ips, [{%IP%}]}.
+{riakc_pb_replies, 1}.
+{operations, [{%OPERATION%, 1}]}.
+EOF
+
+sudo cp /tmp/riakc_pb.template /opt/basho_bench/config/riakc_pb.template
 
 #
 # Install Demo app

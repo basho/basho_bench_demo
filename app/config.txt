@@ -1,0 +1,16 @@
+declare -A nodes                                                          
+
+# Add the IPs for your nodes.  You can add as many nodes as you need
+nodes=(
+  [node_1]='IP_HERE'
+  [node_2]='IP_HERE'
+  [node_3]='IP_HERE'
+  [node_4]='IP_HERE'
+)
+
+# The number of operations to be run per node
+num_operations='10000'
+
+node_count=${#nodes[@]}
+
+basho_bench_path='/opt/basho_bench'
