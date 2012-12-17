@@ -92,43 +92,36 @@ function statsSourceUrl(target, opts) {
 
 $(document).ready(function(){
   $('a#start').click(function(){
-    xhr = $.ajax({
-      type: "GET",
-      url: "/cgi-bin/write.sh"
-    });
+    $.get('/cgi-bin/write.sh');
     $('a#start').attr("disabled", true);
     return false;
   });
   $('a#verify').click(function(){
-    xhr = $.ajax({
-      type: "GET",
-      url: "/cgi-bin/verify.sh"
-    });
+    $.get('/cgi-bin/verify.sh');
     $('a#verify').attr("disabled", true);
     return false;
   });
   $('a#stop').click(function(){
-    xhr = $.ajax({
-      type: "GET",
-      url: "/cgi-bin/stop.sh"
-    });
+    $.get('/cgi-bin/stop.sh');
     $('a#start').attr("disabled", false);
     $('a#verify').attr("disabled", false);
     return false;
   });
 
-//Adjust height of overlay to fill screen when page loads
-$("#dim").css("height", $(document).height());
+  //Adjust height of overlay to fill screen when page loads
+  $("#dim").css("height", $(document).height());
 
-//When the link that triggers the message is clicked fade in overlay/msgbox
-$(".btn-orange").click(function(){
-$("#dim").fadeIn().delay(6500).fadeOut();
-return false;
-});
-
+  //When the link that triggers the message is clicked fade in overlay/msgbox
+  $(".btn-orange").click(function(){
+    $("#dim").fadeIn().delay(6500).fadeOut();
+    return false;
+  });
 });
 
 //Adjust height of overlay to fill screen when browser gets resized
 $(window).bind("resize", function(){
-$("#dim").css("height", $(window).height());
-}); 
+  $("#dim").css("height", $(window).height());
+});
+
+
+ 

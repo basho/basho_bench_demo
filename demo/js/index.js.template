@@ -92,26 +92,17 @@ function statsSourceUrl(target, opts) {
 
 $(document).ready(function(){
   $('a#start').click(function(){
-    xhr = $.ajax({
-      type: "GET",
-      url: "/cgi-bin/write.sh"
-    });
+    $.get('/cgi-bin/write.sh');                                                                                                                                                                                                              
     $('a#start').attr("disabled", true);
     return false;
-  });
+  });                                                                                                                                                                                                                                        
   $('a#verify').click(function(){
-    xhr = $.ajax({
-      type: "GET",
-      url: "/cgi-bin/verify.sh"
-    });
+    $.get('/cgi-bin/verify.sh');                                                                                                                                                                                                             
     $('a#verify').attr("disabled", true);
     return false;
-  });
+  });                                                                                                                                                                                                                                        
   $('a#stop').click(function(){
-    xhr = $.ajax({
-      type: "GET",
-      url: "/cgi-bin/stop.sh"
-    });
+    $.get('/cgi-bin/stop.sh');                                                                                                                                                                                                               
     $('a#start').attr("disabled", false);
     $('a#verify').attr("disabled", false);
     return false;
@@ -131,6 +122,3 @@ $(document).ready(function(){
 $(window).bind("resize", function(){
   $("#dim").css("height", $(window).height());
 });
-
-
- 

@@ -1,0 +1,137 @@
+#header
+{
+  background:url(../images/header-bg.png) left top repeat-x transparent;
+  height:67px;
+  margin:0 0 16px;
+  position:relative;
+  width:auto
+}
+
+#basho-logo
+{
+  background:url(../images/basho-logo.png) left top no-repeat transparent;
+  display:block;
+  height:44px;
+  position:absolute;
+  right:12px;
+  top:12px;
+  width:43px
+}
+
+.has-cut
+{
+  background:url(../images/cut-bg.png) left bottom repeat-x transparent
+}
+
+#dim
+{
+  background:url(../images/dim.png);
+  display:none;
+  left:0;
+  position:absolute;
+  text-align:left;
+  top:0;
+  width:100%;
+  z-index:100
+}
+
+.msgbox
+{
+  -moz-animation:rotate 1.5s infinite steps(12);
+  -ms-animation:rotate 1.5s infinite steps(12);
+  -o-animation:rotate 1.5s infinite steps(12);
+  -webkit-animation:rotate 1.5s infinite steps(12);
+  animation:rotate 1.5s infinite steps(12);
+  background-image:url(../images/spinner.svg);
+  background-size:contain;
+  height:48px;
+  left:50%;
+  opacity:.7;
+  position:absolute;
+  top:50%;
+  width:48px;
+  z-index:200
+}
+
+to
+{
+  -moz-transform:rotate(360deg);
+  -ms-transform:rotate(360deg);
+  -o-transform:rotate(360deg);
+  -webkit-transform:rotate(360deg);
+  transform:rotate(360deg)
+}
+
+#hero-two .glview
+{
+  float:right;
+  padding:8em 2em 0 0
+}
+
+#hero-three .glview
+{
+  float:left;
+  padding:8em 0 0 2em
+}
+
+.hero-row
+{
+  margin-top:-1em;
+  padding-bottom:3em;
+  text-shadow:0 1px 4px #000
+}
+
+#hero-one,#hero-four
+{
+  padding-top:1em
+}
+
+h1
+{
+  color:#DFDFDF;
+  display:block;
+  float:left;
+  padding:15px 0 0 12px;
+  text-shadow:0 2px 0 #000
+}
+
+#graphite
+{
+  stroke-width:2px
+}
+
+svg.tsview
+{
+  background:rgba(0,0,0,0.4)
+}
+
+body
+{
+  color:#DFDFDF
+}
+
+tspan.min-tag,tspan.max-tag
+{
+  display:none
+}
+
+#dashboard
+{
+  padding-top:8px
+}
+
+.container-fluid
+{
+  padding:0
+}
+
+.ggview .gauge circle.outer,.ggview .gauge circle.inner
+{
+  fill:none;
+  stroke:none
+}
+
+.span4,tsview.g text.title
+{
+  text-align:center
+}

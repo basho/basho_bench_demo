@@ -668,7 +668,7 @@ a.thumbnail:hover{border-color:#0088cc;-webkit-box-shadow:0 1px 4px rgba(0, 105,
   fill: #ff0099; }
 
 body {
-  background: url(/images/dark_stripes.png);
+  background: url(../images/gui-bg.jpg) left top repeat #2d2d2d;
   color: #fff;
   stroke: #fff; }
 
