@@ -1,7 +1,7 @@
 function statsSourceUrl(target, opts) {
   opts = opts || {};
   from = opts.from || "-2seconds";
-  return "http://ec2-54-234-15-196.compute-1.amazonaws.com/render/?from=" + from + "&format=json&noCache=true&_salt=1352477600.709&target=*.gauges." + target;
+  return "http://192.168.1.100:8080/render/?from=" + from + "&format=json&noCache=true&_salt=1352477600.709&target=*.gauges." + target;
 }
 
 (function() {
@@ -80,7 +80,7 @@ function statsSourceUrl(target, opts) {
         to: 50
       }
     },
-     "node_1":{source: statsSourceUrl("node_1_*", {"from": "-2minutes"}), refresh_interval: 2000, TimeSeries:{parent: "#g1-1", title: "node_1"}}, "node_3":{source: statsSourceUrl("node_3_*", {"from": "-2minutes"}), refresh_interval: 2000, TimeSeries:{parent: "#g1-2", title: "node_3"}}, "node_2":{source: statsSourceUrl("node_2_*", {"from": "-2minutes"}), refresh_interval: 2000, TimeSeries:{parent: "#g1-3", title: "node_2"}}, "node_4":{source: statsSourceUrl("node_4_*", {"from": "-2minutes"}), refresh_interval: 2000, TimeSeries:{parent: "#g2-1", title: "node_4"}},
+    %NODE_CONFIG%
   };
 
 
