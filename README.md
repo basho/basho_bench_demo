@@ -11,7 +11,6 @@ basho_bench_gui
 
 1. Edit /opt/app/config.txt to set your node IPs and operation count
 2. Run /opt/app/setup.sh
-3. Set web-accessible IP/DNS hostname in /opt/demo/js/index.js.
 
 **Viewing the GUI**
 

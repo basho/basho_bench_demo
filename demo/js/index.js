@@ -1,7 +1,7 @@
 function statsSourceUrl(target, opts) {
   opts = opts || {};
   from = opts.from || "-2seconds";
-  return "http://ec2-54-234-15-196.compute-1.amazonaws.com/render/?from=" + from + "&format=json&noCache=true&_salt=1352477600.709&target=*.gauges." + target;
+  return location.protocol + '//' + location.host + "/render/?from=" + from + "&format=json&noCache=true&_salt=1352477600.709&target=*.gauges." + target;
 }
 
 (function() {
