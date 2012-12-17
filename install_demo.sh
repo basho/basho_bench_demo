@@ -175,6 +175,11 @@ git am --signoff < graphite_demo.patch
 sudo make all
 sudo chmod 755 /opt/basho_bench/basho_bench
 
+# Set permissions so web app can interact with graphite and basho_bench
+sudo mkdir /opt/basho_bench/config /opt/basho_bench/results
+sudo chown www-data /opt/basho_bench/config /opt/basho_bench/results
+
+# Install config template
 cat >> /tmp/riakc_pb.template << EOF
 {mode, max}.
 {duration, 10}.
@@ -195,10 +200,6 @@ sudo cp /tmp/riakc_pb.template /opt/basho_bench/config/riakc_pb.template
 #
 sudo cp -R $SOURCE_DIR/app /opt/
 sudo cp -R $SOURCE_DIR/demo /opt/
-
-# Set permissions so web app can interact with graphite and basho_bench
-sudo mkdir /opt/basho_bench/config /opt/basho_bench/results
-sudo chown www-data /opt/basho_bench/config /opt/basho_bench/results
 
 #
 # rc.local configuration
