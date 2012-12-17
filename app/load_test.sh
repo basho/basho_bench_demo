@@ -35,6 +35,7 @@ done
 sleep 5
 
 while true; do
+  # Reset vars for next log read cycle
   cluster_read_count=0
   cluster_write_count=0
   cluster_read_latency=0
@@ -42,7 +43,9 @@ while true; do
   cluster_error_count=0
   unset total_trans
   active_nodes=$node_count
+  i=0
 
+  # Evaluates the Basho Bench logs for each node
   for node in ${!nodes[@]}; do
     node_complete=$(tail -1 $basho_bench_path/results/$node/current/console.log 2>/dev/null | grep -c 'shutdown')
     node_error=$(tail -1 $basho_bench_path/results/$node/current/console.log 2>/dev/null | grep -c 'econnrefused')
@@ -57,7 +60,9 @@ while true; do
       node_write_latency=$(echo $node_write_status | awk '{print $6}')
 
       total_trans[$i]=$(cat $basho_bench_path/results/$node/current/summary.csv 2>/dev/null | tr -d ',' | awk '{print $3}' | paste -sd+ | bc)
+      i=$((i + 1))
     else
+      # Set all values for inactive nodes to 0
       node_read_count=0
       node_write_count=0
       node_read_latency=0
@@ -65,18 +70,11 @@ while true; do
       active_nodes=$((active_nodes - 1))
     fi
 
-    if [[ $node_read_count -eq "" ]]; then
-      node_read_count=0
-    fi
-    if [[ $node_write_count -eq "" ]]; then
-      node_write_count=0
-    fi
-    if [[ $node_read_latency -eq "" ]]; then
-      node_read_latency=0
-    fi
-    if [[ $node_write_latency -eq "" ]]; then
-      node_write_latency=0
-    fi
+    # Set values to 0 if variable is null
+    node_read_count=${node_read_count:-0}
+    node_write_count=${node_write_count:-0}
+    node_read_latency=${node_read_latency:-0}
+    node_write_latency=${node_write_latency:-0}
 
     cluster_read_count=$((cluster_read_count + $node_read_count))
     cluster_write_count=$((cluster_write_count + $node_write_count))
