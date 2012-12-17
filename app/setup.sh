@@ -2,6 +2,8 @@
 
 source /opt/app/config.txt
 
+start_op=1
+
 # Create basho bench configs for each node
 for node in ${!nodes[@]}; do
   # Create write and verify phase configs for each node
@@ -13,7 +15,10 @@ for node in ${!nodes[@]}; do
   sed -i "s/%IP%/$node_ip/g" $basho_bench_path/config/$node.*
 
   # Set the number of operations to perform
+  sed -i "s/%START_OP%/$start_op/g" $basho_bench_path/config/$node.* 
   sed -i "s/%OPERATIONS%/$num_operations/g" $basho_bench_path/config/$node.* 
+
+  start_op=$((start_op + $num_operations + 1))
 
   # Set the operation type
   sed -i "s/%OPERATION%/put/g" $basho_bench_path/config/$node.write 

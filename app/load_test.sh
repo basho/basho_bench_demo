@@ -17,9 +17,6 @@ function cleanup
   for node in ${!nodes[@]}; do
     kill -9 ${pids[$node]} 2>/dev/null
   done
-
-  # Cleanup old test results
-  rm -rf $basho_bench_path/results/*
 }
 
 # Clean up old data before we get started
@@ -30,7 +27,7 @@ exec 3<> /dev/udp/$statsd_host/$statsd_port
 
 # Start Basho Bench test
 for node in ${!nodes[@]}; do
-  HOME=/opt $basho_bench_path/basho_bench -d $basho_bench_path/results/$node -n $node $basho_bench_path/config/$node.$test_type &
+  HOME=/opt $basho_bench_path/basho_bench -d $basho_bench_path/results/$node $basho_bench_path/config/$node.$test_type &
   pids[$node]=$!
   echo ${pids[$node]}
 done
@@ -47,9 +44,10 @@ while true; do
   active_nodes=$node_count
 
   for node in ${!nodes[@]}; do
-    node_status=$(tail -1 $basho_bench_path/results/$node/current/console.log 2>/dev/null | grep -c 'econnrefused\|shutdown')
+    node_complete=$(tail -1 $basho_bench_path/results/$node/current/console.log 2>/dev/null | grep -c 'shutdown')
+    node_error=$(tail -1 $basho_bench_path/results/$node/current/console.log 2>/dev/null | grep -c 'econnrefused')
 
-    if [ $node_status -eq 0 ]; then
+    if [ $node_complete -eq 0 -a $node_error -eq 0 ]; then
       node_read_status=$(tail -1 $basho_bench_path/results/$node/current/get_latencies.csv 2>/dev/null | tr -d ',')
       node_write_status=$(tail -1 $basho_bench_path/results/$node/current/put_latencies.csv 2>/dev/null | tr -d ',')
       
@@ -90,6 +88,10 @@ while true; do
     printf "${node}_write_throughput:$node_write_count|g" >&3
     printf "${node}_read_latency:$((node_read_latency/1000))|g" >&3
     printf "${node}_write_latency:$((node_write_latency/1000))|g" >&3
+
+    if [ $node_error -eq 1 ]; then
+      printf "error_${node}:1|g" >&3
+    fi
 
     echo "${node}_read_throughput:$node_read_count|g"
     echo "${node}_write_throughput:$node_write_count|g"

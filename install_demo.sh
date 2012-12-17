@@ -180,11 +180,12 @@ cat >> /tmp/riakc_pb.template << EOF
 {duration, 10}.
 {concurrent, 1}.
 {driver, basho_bench_driver_riakc_pb}.
-{key_generator, {int_to_bin, {sequential_int, %OPERATIONS%}}}.
+{key_generator, {int_to_bin, {partitioned_sequential_int, %START_OP%, %OPERATIONS%}}}.
 {value_generator, {fixed_bin, 1}}.
 {riakc_pb_ips, [{%IP%}]}.
 {riakc_pb_replies, 1}.
 {operations, [{%OPERATION%, 1}]}.
+
 EOF
 
 sudo cp /tmp/riakc_pb.template /opt/basho_bench/config/riakc_pb.template
