@@ -25,8 +25,92 @@ html {
     top: 12px;
     right: 12px;
 }
-
 .has-cut   {background: url(images/cut-bg.png) left bottom repeat-x transparent;}
+/*Styles for fuzz overlay & message box*/
+#dim{ position:absolute; top:0; left:0; width:100%; z-index:100; background: url('images/dim.png'); display:none; text-align:left; }
+
+/*Message box, positioned in dead center of browser*/
+.msgbox    {
+    position: absolute;
+    z-index: 200;
+    top: 50%;
+    left: 50%;
+    background-image: url(http://dl.dropbox.com/u/971295/spinner.svg);
+    width: 48px;
+    height: 48px;
+    background-size: contain;
+    opacity: .7;
+    -webkit-animation:rotate 1.5s infinite steps(12);
+    -moz-animation:rotate 1.5s infinite steps(12);
+    -ms-animation:rotate 1.5s infinite steps(12);
+    -o-animation:rotate 1.5s infinite steps(12);
+    animation:rotate 1.5s infinite steps(12);  
+}
+@keyframes "rotate" {
+ from {
+    -webkit-transform: rotate(0deg);
+       -moz-transform: rotate(0deg);
+       -o-transform: rotate(0deg);
+       -ms-transform: rotate(0deg);
+       transform: rotate(0deg);
+ }
+ to {
+    -webkit-transform: rotate(360deg);
+       -moz-transform: rotate(360deg);
+       -o-transform: rotate(360deg);
+       -ms-transform: rotate(360deg);
+       transform: rotate(360deg);
+ }
+
+}
+
+@-moz-keyframes rotate {
+ from {
+   -moz-transform: rotate(0deg);
+   transform: rotate(0deg);
+ }
+ to {
+   -moz-transform: rotate(360deg);
+   transform: rotate(360deg);
+ }
+
+}
+
+@-webkit-keyframes "rotate" {
+ from {
+   -webkit-transform: rotate(0deg);
+   transform: rotate(0deg);
+ }
+ to {
+   -webkit-transform: rotate(360deg);
+   transform: rotate(360deg);
+ }
+
+}
+
+@-ms-keyframes "rotate" {
+ from {
+   -ms-transform: rotate(0deg);
+   transform: rotate(0deg);
+ }
+ to {
+   -ms-transform: rotate(360deg);
+   transform: rotate(360deg);
+ }
+
+}
+
+@-o-keyframes "rotate" {
+ from {
+   -o-transform: rotate(0deg);
+   transform: rotate(0deg);
+ }
+ to {
+   -o-transform: rotate(360deg);
+   transform: rotate(360deg);
+ }
+
+}
 
       /*
        * demo page bootstrap customizations
@@ -93,8 +177,9 @@ html {
       </style>
   </head>
   <body>
-    
-
+    <div id="dim">
+      <div class="msgbox"></div>
+    </div>
     <div id="dashboard" class="container-fluid">
       <div id="header">
         <h1>Basho Bench Dashboard</h1>
@@ -117,11 +202,6 @@ html {
         <div id="hero-four" class="span4">
         </div>
       </div>
-
-      <div id="loading">
-        <p><img src="images/loading.gif" /> Please Wait</p>
-      </div> 
-
       <div class="row-fluid">
         <div id="g1-1" class="span4">
         </div>

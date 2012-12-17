@@ -90,8 +90,6 @@ function statsSourceUrl(target, opts) {
 
 }).call(this);
 
-$('#loading').hide();
-
 $(document).ready(function(){
   $('a#start').click(function(){
     xhr = $.ajax({
@@ -118,6 +116,19 @@ $(document).ready(function(){
     $('a#verify').attr("disabled", false);
     return false;
   });
+
+//Adjust height of overlay to fill screen when page loads
+$("#dim").css("height", $(document).height());
+
+//When the link that triggers the message is clicked fade in overlay/msgbox
+$(".btn-orange").click(function(){
+$("#dim").fadeIn().delay(6500).fadeOut();
+return false;
 });
 
- 
+});
+
+//Adjust height of overlay to fill screen when browser gets resized
+$(window).bind("resize", function(){
+$("#dim").css("height", $(window).height());
+}); 
