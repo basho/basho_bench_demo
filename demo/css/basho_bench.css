@@ -187,3 +187,11 @@ tspan.min-tag,tspan.max-tag
 {
   text-align:center
 }
+
+#tabs svg.tsview { background:rgba(0,0,0,0.85); }
+.ui-dialog .ui-dialog-content, .ui-tabs .ui-tabs-panel { padding:0; }
+.ui-tabs-panel .span6 { margin-left: 0; }
+.ui-dialog-titlebar { border:none; }
+#ui-tab-dialog-close { position:absolute; right:0; top:17px; }
+#ui-tab-dialog-close a { float:none; padding:0; }
+#tab_buttons { border: 0; }

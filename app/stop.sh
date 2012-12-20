@@ -2,10 +2,10 @@
 
 source /opt/app/config.txt
 
-statsd_host="${STATSD_HOST:-127.0.0.1}"
-statsd_port="${STATSD_PORT:-8125}"
-
 ps aux | grep 'basho_bench\|load_test.sh' | grep -v grep | awk '{print $2}' | xargs -I % kill -9 %
+
+# Remove old state directories
+rm -rf $basho_bench_path/state/*
 
 exec 3<> /dev/udp/$statsd_host/$statsd_port
 
@@ -27,4 +27,5 @@ printf "test_completion:0|g" >&3
 # Close UDP socket
 exec 3<&-
 exec 3>&-
+
 

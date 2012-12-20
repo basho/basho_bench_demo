@@ -1,3 +1,3 @@
 #!/bin/bash
 
-/opt/app/load_test.sh write
+/opt/app/load_test.sh write 

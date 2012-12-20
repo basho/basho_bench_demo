@@ -4,23 +4,25 @@
     <title>Dashboard</title>
     <link rel="icon" href="favicon.ico">
     <link rel="stylesheet" href="css/index.css" type="text/css" media="screen" charset="utf-8">
+    <link rel="stylesheet" href="css/smoothness/jquery-ui-1.9.2.custom.css" type="text/css" media="screen" charset="utf-8">
     <link rel="stylesheet" href="css/basho_bench.css" type="text/css" media="screen" charset="utf-8">
   </head>
   <body>
-    <div id="dim">
-      <div class="msgbox"></div>
-    </div>
     <div id="dashboard" class="container-fluid">
       <div id="header">
         <h1>Basho Bench Dashboard</h1>
         <a id="basho-logo" href="http://www.basho.com" target="_blank"></a>
       </div>
       <div id="controls" style="text-align: center;">
-          <a id="start" class="btn btn-large btn-orange">Start Test</a> 
+          <a id="start-button" class="btn btn-large btn-orange">Load Data</a> 
           <span style="font-size:1.2em">&nbsp;</span>
-          <a id="verify" class="btn btn-large btn-orange">Verify Data</a> 
+          <a id="verify-button" class="btn btn-large btn-orange">Verify Data</a> 
           <span style="font-size:1.2em">&nbsp;</span>
-          <a id="stop" class="btn btn-large btn-blk">Reset</a>
+          <a id="delete-button" class="btn btn-large btn-orange">Delete Data</a> 
+          <span style="font-size:1.2em">&nbsp;</span>
+          <a id="reset-button" class="btn btn-large btn-blk">Reset</a>
+          <span style="font-size:1.2em">&nbsp;</span>
+          <a id="stats-button" class="btn btn-large btn-blk">Advanced Stats</a>
       </div> 
       <div class="row-fluid hero-row has-cut">
         <div id="hero-one" class="span4">
@@ -53,7 +55,33 @@
       </div>
     </div>
 
-    <script type="text/javascript" src="js/vendor/js/jquery-1.7.1.min.js"></script>
+    <div id="dim">
+      <div class="msgbox"></div>
+    </div>
+    <div id="stats-modal" title="Advanced Stats" style="display: none;">
+      <div id="tabs">
+        <ul id="tab_buttons">
+          <li><a href="#tabs-1">Cluster Stats</a></li>
+          <li><a href="#tabs-2">Riak Stats</a></li>
+          <li id="ui-tab-dialog-close"></li>
+        </ul>
+        <div id="tabs-1" class="row-fluid">
+          <div id="cluster-throughput" class="span6">
+          </div>
+          <div id="cluster-latency" class="span6">
+          </div>
+        </div>
+        <div id="tabs-2" class="row-fluid">
+          <div id="objects-per-node" class="span6">
+          </div>
+          <div id="handoffs" class="span6">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="js/vendor/js/jquery-1.8.3.js"></script>
+    <script type="text/javascript" src="js/vendor/js/jquery-ui-1.9.2.custom.min.js"></script>
     <script type="text/javascript" src="js/graphene.min.js"></script>    
     <script type="text/javascript" src="js/index.js"></script>    
   </body>
