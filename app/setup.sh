@@ -3,27 +3,27 @@
 source /opt/app/config.txt
 source /opt/app/functions.sh
 
-start_op=0
+START_IP=0
 
 # Create basho bench configs for each node
-for node in ${!nodes[@]}; do
-  create_bench_config $node $start_op
-  start_op=$((start_op + $num_operations))
+for NODE in ${!NODES[@]}; do
+  create_bench_config $NODE $START_IP
+  START_IP=$((START_IP + $NUM_OPERATIONS))
 done
 
-row=1
-column=1
+ROW=1
+COLUMN=1
 
-for node in ${!nodes[@]}; do
-  json="$json \"$node\":{source: statsSourceUrl(\"${node}_*_throughput\", {\"from\": \"-2minutes\"}), refresh_interval: 2000, TimeSeries:{parent: \"#g${row}-${column}\", title: \"${node}\"}},"
+for NODE in ${!NODES[@]}; do
+  JSON="$JSON \"$NODE\":{source: statsSourceUrl(\"${NODE}_*.test.throughput\", {\"from\": \"-2minutes\"}), refresh_interval: 2000, TimeSeries:{parent: \"#g${ROW}-${COLUMN}\", title: \"${NODE}\"}},"
 
-  column=$((column + 1))
-  if [ $column -eq 4 ]; then
-    row=$((row + 1))
-    column=1
+  COLUMN=$((COLUMN + 1))
+  if [ $COLUMN -eq 4 ]; then
+    ROW=$((ROW + 1))
+    COLUMN=1
   fi
 done
 
 cp /opt/demo/js/index.js.template /opt/demo/js/index.js
-sed -i "s/%NODE_CONFIG%/$json/g" /opt/demo/js/index.js
+sed -i "s/%NODE_CONFIG%/$JSON/g" /opt/demo/js/index.js
 

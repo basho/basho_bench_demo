@@ -1,76 +1,73 @@
 function statsSourceUrl(target, opts) {
   opts = opts || {};
   from = opts.from || "-2seconds";
-  type = opts.type || "gauges"
+  type = opts.type || "gauge"
   func = opts.func || "";
 
   open = "";
   close = "";
   if(func !== "") { open = "("; close = ")"; }
 
-  return location.protocol + '//' + location.host + "/render/?from=" + from + "&format=json&noCache=true&_salt=1352477600.709&target=" + func + open + "*." + type + "." + target + close;
+  if(type === "gauge") {
+    type = "stats.gauges.";
+  }
+  else if(type === "counter") {
+    type = "stats_counts.";
+    type = "stats.";
+  }
+
+  return location.protocol + '//' + location.host + "/render/?from=" + from + "&format=json&noCache=true&_salt=1352477600.709&target=" + func + open + type + target + close;
 }
 
-(function() {
   var description;
   description = {
-    "Write Throughput": {
-      source: statsSourceUrl("node_*_write_throughput", {"func": "sumSeries"}),
+    "Throughput": {
+      source: statsSourceUrl("node_*.test.*_throughput", {"func": "sumSeries"}),
       refresh_interval: 1000,
       GaugeLabel: {
-        parent: "#hero-one",
-        title: "Write Throughput",
+        parent: "#hero-two",
+        title: "Throughput",
         unit: "req/s"
       }
     },
-    "Write Latency": {
-      source: statsSourceUrl("node_*_write_latency", {"func": "averageSeries"}),
+    "Latency": {
+      source: statsSourceUrl("node_*.test.*_latency", {"func": "averageSeries"}),
       refresh_interval: 4000,
       GaugeGadget: {
-        parent: "#hero-one",
+        parent: "#hero-two",
         title: "LATENCY",
         to: 20
       }
     },
     "Errors": {
-      source: statsSourceUrl("node_*_error_count", {"func": "sumSeries"}),
+      source: statsSourceUrl("node_*.test.error_count", {"func": "sumSeries"}),
       refresh_interval: 1000,
       GaugeLabel: {
-        parent: "#hero-three",
+        parent: "#hero-four",
         title: "Error Count",
         value_format: "02d",
       }
     },
+    "Object Count": {
+      source: statsSourceUrl("cluster.riak.object_count"),
+      refresh_interval: 1000,
+      GaugeLabel: {
+        parent: "#hero-three",
+        title: "Object Count",
+        value_format: ",02d",
+      }
+    },
     "Completion": {
-      source: statsSourceUrl("test_completion"),
+      source: statsSourceUrl("cluster.test.completion"),
       refresh_interval: 1000,
-      GaugeLabel: {
-        parent: "#hero-two",
-        title: "Complete",
-        value_format: "02d",
-        unit: "%"
-      }
-    },
-    "Read Throughput": {
-      source: statsSourceUrl("node_*_read_throughput", {"func": "sumSeries"}),
-      refresh_interval: 1000,
-      GaugeLabel: {
-        parent: "#hero-four",
-        title: "Read Throughput",
-        unit: "req/s"
-      }
-    },
-    "Read Latency": {
-      source: statsSourceUrl("node_*_read_latency", {"func": "averageSeries"}),
-      refresh_interval: 4000,
       GaugeGadget: {
-        parent: "#hero-four",
-        title: "Latency",
-        to: 20
+        parent: "#hero-three",
+        title: "Complete",
+        to: 100
       }
     },
     "Cluster Throughput": {
-      source: statsSourceUrl("node_*_*_throughput", {"from": "-2minutes", "func": "sumSeries"}),
+      source: statsSourceUrl("node_*.test.*_throughput", {"from": "-2minutes", "func": "sumSeries"}),
       refresh_interval: 2000,
       TimeSeries: {
         parent: "#cluster-throughput",
@@ -79,27 +76,27 @@ function statsSourceUrl(target, opts) {
       },
     },
     "Cluster Latency": {
-      source: statsSourceUrl("node_*_read_latency, node_*_write_latency", {"from": "-2minutes", "func": "averageSeries"}),
+      source: statsSourceUrl("node_*.test.read_latency, node_*.test.write_latency", {"from": "-2minutes", "func": "averageSeries"}),
       refresh_interval: 2000,
       TimeSeries: {                
         parent: "#cluster-latency",            
         title: "Cluster Latency",
       },                                  
     },
-    "Objects per Node": {
-      source: statsSourceUrl("node_*_read_latency, node_*_write_latency", {"from": "-2minutes", "func": "averageSeries"}),
+    "Vnode Gets": {
+      source: statsSourceUrl("node_*.riak.vnode_gets", {"from": "-5minutes"}),
       refresh_interval: 2000,
       TimeSeries: {
         parent: "#objects-per-node",
-        title: "Objects Per Node",
+        title: "Vnode Gets",
       },                 
     }, 
-    "Handoffs": {
-      source: statsSourceUrl("node_*_read_latency, node_*_write_latency", {"from": "-2minutes", "func": "averageSeries"}),
+    "Read Repairs": {
+      source: statsSourceUrl("node_*.riak.read_repairs", {"from": "-2minutes"}),
       refresh_interval: 2000,
       TimeSeries: {
         parent: "#handoffs",
-        title: "Handoffs",
+        title: "Read Repairs",
       },                 
     }, 
 
@@ -108,6 +105,7 @@ function statsSourceUrl(target, opts) {
 
 
   var g = new Graphene;
+(function() {
   g.build(description);
 
 

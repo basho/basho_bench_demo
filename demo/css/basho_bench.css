@@ -113,7 +113,7 @@
    transform: rotate(360deg);
   }
 }
-
+/*
 #hero-two .glview
 {
   float:right;
@@ -125,18 +125,23 @@
   float:left;
   padding:8em 0 0 2em
 }
-
+*/
 .hero-row
 {
-  margin-top:-1em;
-  padding-bottom:3em;
+  margin-top:3em;
+  padding-bottom:1em;
   text-shadow:0 1px 4px #000
 }
 
-#hero-one,#hero-four
-{
-  padding-top:1em
+#hero-one .btn {
+  margin: 0 0 0.3em 2em;
+  float: left;
+  clear: both;
 }
+
+#controls {
+  margin-top: -1em;
+}  
 
 h1
 {
@@ -183,10 +188,12 @@ tspan.min-tag,tspan.max-tag
   stroke:none
 }
 
+/*
 .span4,tsview.g text.title
 {
   text-align:center
 }
+*/
 
 #tabs svg.tsview { background:rgba(0,0,0,0.85); }
 .ui-dialog .ui-dialog-content, .ui-tabs .ui-tabs-panel { padding:0; }
