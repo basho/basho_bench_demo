@@ -1,4 +1,8 @@
-function statsSourceUrl(target, opts) {
+var graphConfig;
+var metrics = {}; 
+var g = new Graphene;
+
+function statsSourceUrl(targets, opts) {
   opts = opts || {};
   from = opts.from || "-2seconds";
   type = opts.type || "gauge"
@@ -16,157 +20,237 @@ function statsSourceUrl(target, opts) {
     type = "stats.";
   }
 
-  return location.protocol + '//' + location.host + "/render/?from=" + from + "&format=json&noCache=true&_salt=1352477600.709&target=" + func + open + type + target + close;
+  url = location.protocol + '//' + location.host + '/render/?from=' + from + '&format=json&noCache=true';
+  if($.isArray(targets)) {
+    $.each(targets, function(key, target) {
+      url = url + '&target=' + func + open + type + target + close;
+    });
+  }
+  else {
+    url = url + '&target=' + func + open + type + targets + close;
+  }
+  return url;
 }
 
-  var description;
-  description = {
-    "Throughput": {
-      source: statsSourceUrl("node_*.test.*_throughput", {"func": "sumSeries"}),
-      refresh_interval: 1000,
-      GaugeLabel: {
-        parent: "#hero-two",
-        title: "Throughput",
-        unit: "req/s"
+function buildGraphs(object) {
+
+  if(!object) {
+    object = graphConfig;
+
+    $.each(object, function(index, value) {
+      $.each(value, function(index2, value2) {
+        if($.type(value2) == 'object') {
+          $(value2.parent).empty();
+        }
+      });
+    });
+  }
+
+  g.build($.extend(true, true, object));
+}
+
+function removeGraph(object, item) {
+  $.each(object, function(index, value) {
+    $.each(value, function(index2, value2) {
+      if($.type(value2) == 'object' && value2.parent == item) {
+        delete object[index];
+        $(item).remove();
       }
+    });
+  });
+}
+
+function addGraph(name, source, from, refresh_interval, type, parent) {
+  var tempObj = new Object();
+
+  if(parent == null) {
+    id = 'g' + Math.floor(Math.random()*99999).toString();
+    $('#dynamic-rows .sortable').append('<li id="' + id + '" draggable="true" style="display: list-item;" />');
+    parent = '#' + id;
+  }
+
+  tempObj[name] = {"source": statsSourceUrl(source, {"from": from}), "refresh_interval": refresh_interval} 
+  tempObj[name][type] = {"parent": parent, "title": name};
+  graphConfig[name] = {"source": statsSourceUrl(source, {"from": from}), "refresh_interval": refresh_interval} 
+  graphConfig[name][type] = {"parent": parent, "title": name};
+
+  buildGraphs(tempObj);
+}
+
+
+var graphConfig = {
+    "Throughput": {
+        "source": statsSourceUrl("node_*.test.*_throughput", {"func": "averageSeries"}),
+        "refresh_interval": "1000",
+        "GaugeLabel": {
+            "parent": "#hero-one",
+            "title": "Throughput",
+            "unit": "req/s"
+        }
     },
     "Latency": {
-      source: statsSourceUrl("node_*.test.*_latency", {"func": "averageSeries"}),
-      refresh_interval: 4000,
-      GaugeGadget: {
-        parent: "#hero-two",
-        title: "LATENCY",
-        to: 20
+      "source": statsSourceUrl("node_*.test.*_latency", {"func": "averageSeries"}),
+      "refresh_interval": 4000,
+      "GaugeGadget": {
+        "parent": "#hero-one",
+        "title": "LATENCY",
+        "to": 20
       }
     },
     "Errors": {
-      source: statsSourceUrl("node_*.test.error_count", {"func": "sumSeries"}),
-      refresh_interval: 1000,
-      GaugeLabel: {
-        parent: "#hero-four",
-        title: "Error Count",
-        value_format: "02d",
+      "source": statsSourceUrl("node_*.test.error_count", {"func": "sumSeries"}),
+      "refresh_interval": 1000,
+      "GaugeLabel": {
+        "parent": "#hero-three",
+        "title": "Error Count",
+        "value_format": "02d",
       }
     },
     "Object Count": {
-      source: statsSourceUrl("cluster.riak.object_count"),
-      refresh_interval: 1000,
-      GaugeLabel: {
-        parent: "#hero-three",
-        title: "Object Count",
-        value_format: ",02d",
+      "source": statsSourceUrl("cluster.riak.object_count"),
+      "refresh_interval": 1000,
+      "GaugeLabel": {
+        "parent": "#hero-two",
+        "title": "Object Count",
+        "value_format": ",02d",
       }
     },
     "Completion": {
-      source: statsSourceUrl("cluster.test.completion"),
-      refresh_interval: 1000,
-      GaugeGadget: {
-        parent: "#hero-three",
-        title: "Complete",
-        to: 100
+      "source": statsSourceUrl("cluster.test.completion"),
+      "refresh_interval": 1000,
+      "GaugeGadget": {
+        "parent": "#hero-two",
+        "title": "Complete",
+        "to": 100
       }
     },
     "Cluster Throughput": {
-      source: statsSourceUrl("node_*.test.*_throughput", {"from": "-2minutes", "func": "sumSeries"}),
-      refresh_interval: 2000,
-      TimeSeries: {
-        parent: "#cluster-throughput",
-        title: "Cluster Throughput",
-        num_labels: 0,
+      "source": statsSourceUrl("node_*.test.*_throughput", {"from": "-2minutes", "func": "sumSeries"}),
+      "refresh_interval": 2000,
+      "TimeSeries": {
+        "parent": "#cluster-throughput",
+        "title": "Cluster Throughput",
+        "num_labels": 0,
       },
     },
     "Cluster Latency": {
-      source: statsSourceUrl("node_*.test.read_latency, node_*.test.write_latency", {"from": "-2minutes", "func": "averageSeries"}),
-      refresh_interval: 2000,
-      TimeSeries: {                
-        parent: "#cluster-latency",            
-        title: "Cluster Latency",
+      "source": statsSourceUrl("node_*.test.read_latency, node_*.test.write_latency", {"from": "-2minutes", "func": "averageSeries"}),
+      "refresh_interval": 2000,
+      "TimeSeries": {                
+        "parent": "#cluster-latency",            
+        "title": "Cluster Latency",
       },                                  
     },
     "Vnode Gets": {
-      source: statsSourceUrl("node_*.riak.vnode_gets", {"from": "-5minutes"}),
-      refresh_interval: 2000,
-      TimeSeries: {
-        parent: "#objects-per-node",
-        title: "Vnode Gets",
+      "source": statsSourceUrl("node_*.riak.vnode_gets", {"from": "-5minutes"}),
+      "refresh_interval": 2000,
+      "TimeSeries": {
+        "parent": "#objects-per-node",
+        "title": "Vnode Gets",
       },                 
     }, 
     "Read Repairs": {
-      source: statsSourceUrl("node_*.riak.read_repairs", {"from": "-2minutes"}),
-      refresh_interval: 2000,
-      TimeSeries: {
-        parent: "#handoffs",
-        title: "Read Repairs",
+      "source": statsSourceUrl("node_*.riak.read_repairs", {"from": "-2minutes"}),
+      "refresh_interval": 2000,
+      "TimeSeries": {
+        "parent": "#handoffs",
+        "title": "Read Repairs",
       },                 
     }, 
+};
 
-     "node_1":{source: statsSourceUrl("node_1.test.*_throughput", {"from": "-2minutes"}), refresh_interval: 2000, TimeSeries:{parent: "#g1-1", title: "node_1"}}, "node_3":{source: statsSourceUrl("node_3.test.*_throughput", {"from": "-2minutes"}), refresh_interval: 2000, TimeSeries:{parent: "#g1-2", title: "node_3"}}, "node_2":{source: statsSourceUrl("node_2.test.*_throughput", {"from": "-2minutes"}), refresh_interval: 2000, TimeSeries:{parent: "#g1-3", title: "node_2"}}, "node_4":{source: statsSourceUrl("node_4.test.*_throughput", {"from": "-2minutes"}), refresh_interval: 2000, TimeSeries:{parent: "#g2-1", title: "node_4"}},
-  };
-
-
-  var g = new Graphene;
-(function() {
-  g.build(description);
-
-
-}).call(this);
+addGraph("node_1", "node_1.test.*_throughput", "-2minutes", 2000, 'TimeSeries');
+addGraph("node_2", "node_2.test.*_throughput", "-2minutes", 2000, 'TimeSeries');
+addGraph("node_3", "node_3.test.*_throughput", "-2minutes", 2000, 'TimeSeries');
+addGraph("node_4", "node_4.test.*_throughput", "-2minutes", 2000, 'TimeSeries');
 
 $(document).ready(function(){
-  $('#start-button').click(function(){
+    $('#start-button').click(function(){
     $.get('/cgi-bin/write.sh');                                                                                                                                                                                                              
-    $('#start-button').attr("disabled", true);
+    $(this).attr("disabled", "disabled");
     return false;
   });                                                                                                                                                                                                                                        
   $('#verify-button').click(function(){
     $.get('/cgi-bin/verify.sh');                                                                                                                                                                                                             
-    $('#verify-button').attr("disabled", true);
+    $(this).attr("disabled", "disabled");
     return false;
   });                                                                                                                                                                                                                                        
   $('#delete-button').click(function(){
     $.get('/cgi-bin/delete.sh');                                                                                                                                                                                                             
-    $('#delete-button').attr("disabled", true);
+    $(this).attr("disabled", "disabled");
     return false;
   });                                                                                                                                                                                                                                        
   $('#reset-button').click(function(){
     $.get('/cgi-bin/stop.sh');                                                                                                                                                                                                               
-    $('#start-button').attr("disabled", false);
-    $('#verify-button').attr("disabled", false);
-    $('#delete-button').attr("disabled", false);
+    $('#start-button').removeAttr("disabled");
+    $('#verify-button').removeAttr("disabled");
+    $('#delete-button').removeAttr("disabled");
     return false;
   });
-  $("#stats-button").click(function() {
-    $("#stats-modal").dialog("open");
-  });
-
-  //Adjust height of overlay to fill screen when page loads
-  $("#dim").css("height", $(document).height());
 
   //When the link that triggers the message is clicked fade in overlay/msgbox
   $(".btn-orange").click(function(){
-    $("#dim").fadeIn().delay(3000).fadeOut();
+    $('#dim').fadeIn().delay(3000).fadeOut();
     return false;
   });
 
-  $("#tabs").tabs({
-    active: 0,
-    heightStyle: "auto",
+  $('#add-graph-button').click(function() {
+    addGraph($('#graph_title').val(), $("#select_attribute").val(), '-2minutes', '2000', 'TimeSeries');    
   });
 
-  $("#stats-modal").dialog({
-    autoOpen: false,
-    width: 1010,
-    modal: true,
+
+  $('#dynamic-rows li').live('mouseenter', function() {
+    $(this).append('<button type="button" class="close">&times;</button>')
+    $('.close').click(function() {
+      removeGraph(graphConfig, '#' + $(this).parent().attr('id'));
+    });
   });
 
-  // Swap the modal titlebar for the tabs interface
-  $("#ui-tab-dialog-close").append($("a.ui-dialog-titlebar-close"));
-  $("#stats-modal").addClass("ui-tabs").prepend($("#tab_buttons"))
-  $('.ui-dialog-titlebar').remove();
-  $('#tabs').addClass('ui-dialog-titlebar');
+  $('#dynamic-rows li').live('mouseleave', function() {
+    $('.close').remove();
+  });
+
+  $('#sortable2').sortable();
+
+  // Populate metrics object
+  $.getJSON('/metrics/index.json', function(data) { 
+    $.each(data, function(key, val) { 
+      if(val.match(/^stats.gauges/)) { 
+        stat = val.split('.');
+        if(metrics[stat[2]]) {
+          if(metrics[stat[2]][stat[3]]) { 
+            metrics[stat[2]][stat[3]].push(stat[4]); 
+          } 
+          else {
+            metrics[stat[2]][stat[3]] = [];
+            metrics[stat[2]][stat[3]].push(stat[4]);
+          }  
+        }
+        else {
+          metrics[stat[2]] = {};
+          metrics[stat[2]][stat[3]] = [];
+          metrics[stat[2]][stat[3]].push(stat[4]);
+        }
+      } 
+    }); 
+
+    $.each(metrics, function(node) {
+      var optGroup = $('<optgroup label="' + node + '" />');
+      $.each(metrics[node]['riak'], function(key, metric) {
+       optGroup.append(new Option(node + '.' + 'riak' + '.' + metric)); 
+      });
+      $.each(metrics[node]['test'], function(key, metric) {
+       optGroup.append(new Option(node + '.' + 'test' + '.' + metric)); 
+      });
+      $('#select_attribute').append(optGroup);
+    });
+    $('#select_attribute').chosen();
+  });
   
+  buildGraphs();
 });
 
-//Adjust height of overlay to fill screen when browser gets resized
+// Adjust graph sizes on window resize
 $(window).bind("resize", function(){
-  $("#dim").css("height", $(window).height());
+  buildGraphs();
 });
