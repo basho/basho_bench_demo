@@ -1,3 +1,4 @@
+var graphConfig = {};
 getGraphConfig();
 var metrics = {}; 
 var g = new Graphene;
@@ -117,6 +118,7 @@ function addGraph(name, source, opts) {
   }
 
   saveGraphConfig();
+console.error(graphConfig);
   buildGraphs(tempObj);
 }
 
@@ -134,11 +136,11 @@ if($.isEmptyObject(graphConfig)) {
 }
 
 function saveGraphConfig() {
-  $.cookie("graphConfig", JSON.stringify(graphConfig));
+  localStorage.setItem("graphConfig", JSON.stringify(graphConfig));
 }
 
 function getGraphConfig() {
-  var config = JSON.parse($.cookie("graphConfig"));
+  var config = JSON.parse(localStorage.getItem("graphConfig"));
   if(config == null) {
     graphConfig = {};
   }
