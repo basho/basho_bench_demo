@@ -1,15 +1,16 @@
-var graphConfig;
+var graphConfig = {};
+getGraphConfig();
 var metrics = {}; 
 var g = new Graphene;
 
 function statsSourceUrl(targets, opts) {
-  opts = opts || {};
-  from = opts.from || "-2seconds";
-  type = opts.type || "gauge"
-  func = opts.func || "";
+  var opts = opts || {};
+  var from = opts.from || "-2seconds";
+  var type = opts.type || "gauge"
+  var func = opts.func || "";
 
-  open = "";
-  close = "";
+  var open = "";
+  var close = "";
   if(func !== "") { open = "("; close = ")"; }
 
   if(type === "gauge") {
@@ -40,7 +41,14 @@ function buildGraphs(object) {
     $.each(object, function(index, value) {
       $.each(value, function(index2, value2) {
         if($.type(value2) == 'object') {
-          $(value2.parent).empty();
+          if($(value2.parent).length == 0) {
+            var id = 'g' + Math.floor(Math.random()*99999).toString();
+            $('.sortable').append('<li id="' + id + '" class="timeseries" draggable="true" />');
+            value2.parent = '#' + id;
+          }
+          else {
+            $(value2.parent).empty();
+          }
         }
       });
     });
@@ -55,128 +63,108 @@ function removeGraph(object, item) {
       if($.type(value2) == 'object' && value2.parent == item) {
         delete object[index];
         $(item).remove();
+        saveGraphConfig();
       }
     });
   });
 }
 
-function addGraph(name, source, from, refresh_interval, type, parent) {
-  var tempObj = new Object();
+//function addGraph(name, source, from, refresh_interval, type, parent) {
+function addGraph(name, source, opts) {
+  var opts = opts || {};
+  var from = opts.from || '-2minutes';
+  var type = opts.type || 'TimeSeries';
+  var refresh_interval = opts.refresh_interval || 2000;
+  var func = opts.func || '';
+  var parent_element = opts.parent_element || '';
+  var value_format = opts.value_format || '';
+  var to = opts.to || '';
+  var unit = opts.unit || '';
 
-  if(parent == null) {
-    id = 'g' + Math.floor(Math.random()*99999).toString();
-    $('#dynamic-rows .sortable').append('<li id="' + id + '" draggable="true" style="display: list-item;" />');
-    parent = '#' + id;
+  if(parent_element === '') {
+    var id = 'g' + Math.floor(Math.random()*99999).toString();
+    $('.sortable').append('<li id="' + id + '" class="timeseries" draggable="true" />');
+    parent_element = '#' + id;
   }
 
-  tempObj[name] = {"source": statsSourceUrl(source, {"from": from}), "refresh_interval": refresh_interval} 
-  tempObj[name][type] = {"parent": parent, "title": name};
-  graphConfig[name] = {"source": statsSourceUrl(source, {"from": from}), "refresh_interval": refresh_interval} 
-  graphConfig[name][type] = {"parent": parent, "title": name};
+  var tempObj = new Object();
 
+  if(func !== '') {
+    tempObj[name] = {"source": statsSourceUrl(source, {"from": from, "func": func}), "refresh_interval": refresh_interval} 
+    tempObj[name][type] = {"parent": parent_element, "title": name};
+    graphConfig[name] = {"source": statsSourceUrl(source, {"from": from, "func": func}), "refresh_interval": refresh_interval} 
+    graphConfig[name][type] = {"parent": parent_element, "title": name};
+  }
+  else {
+    tempObj[name] = {"source": statsSourceUrl(source, {"from": from}), "refresh_interval": refresh_interval} 
+    tempObj[name][type] = {"parent": parent_element, "title": name};
+    graphConfig[name] = {"source": statsSourceUrl(source, {"from": from}), "refresh_interval": refresh_interval} 
+    graphConfig[name][type] = {"parent": parent_element, "title": name};
+  }
+
+  if(value_format !== '') {
+    tempObj[name][type]['value_format'] = value_format;
+    graphConfig[name][type]['value_format'] = value_format;
+  }
+
+  if(to !== '') {
+    tempObj[name][type]['to'] = to;
+    graphConfig[name][type]['to'] = to;
+  }
+
+  if(unit !== '') {
+    tempObj[name][type]['unit'] = unit;
+    graphConfig[name][type]['unit'] = unit;
+  }
+
+  saveGraphConfig();
   buildGraphs(tempObj);
 }
 
+if(graphConfig == null) {
+  addGraph("Throughput", "node_*.test.*_throughput", {"refresh_interval": 1000, "from": "-2seconds", "type": "GaugeLabel", "parent_element": "#hero-one", "unit": "req/s", "func": "sumSeries"});
+  addGraph("Latency", "node_*.test.*_latency", {"refresh_interval": 4000, "from": "-2seconds", "type": "GaugeGadget", "parent_element": "#hero-one", "to": 20, "func": "averageSeries"});
+  addGraph("Errors", "node_*.test.error_count", {"refresh_interval": 1000, "from": "-2seconds", "type": "GaugeLabel", "parent_element": "#hero-three", "value_format": "02d", "func": "sumSeries"});
+  addGraph("Object Count", "cluster.riak.object_count", {"refresh_interval": 1000, "from": "-2seconds", "type": "GaugeLabel", "parent_element": "#hero-two", "value_format": ",02d"});
+  addGraph("Completion", "cluster.test.completion", {"refresh_interval": 1000, "from": "-2seconds", "type": "GaugeGadget", "parent_element": "#hero-two"});
 
-var graphConfig = {
-    "Throughput": {
-        "source": statsSourceUrl("node_*.test.*_throughput", {"func": "averageSeries"}),
-        "refresh_interval": "1000",
-        "GaugeLabel": {
-            "parent": "#hero-one",
-            "title": "Throughput",
-            "unit": "req/s"
-        }
-    },
-    "Latency": {
-      "source": statsSourceUrl("node_*.test.*_latency", {"func": "averageSeries"}),
-      "refresh_interval": 4000,
-      "GaugeGadget": {
-        "parent": "#hero-one",
-        "title": "LATENCY",
-        "to": 20
-      }
-    },
-    "Errors": {
-      "source": statsSourceUrl("node_*.test.error_count", {"func": "sumSeries"}),
-      "refresh_interval": 1000,
-      "GaugeLabel": {
-        "parent": "#hero-three",
-        "title": "Error Count",
-        "value_format": "02d",
-      }
-    },
-    "Object Count": {
-      "source": statsSourceUrl("cluster.riak.object_count"),
-      "refresh_interval": 1000,
-      "GaugeLabel": {
-        "parent": "#hero-two",
-        "title": "Object Count",
-        "value_format": ",02d",
-      }
-    },
-    "Completion": {
-      "source": statsSourceUrl("cluster.test.completion"),
-      "refresh_interval": 1000,
-      "GaugeGadget": {
-        "parent": "#hero-two",
-        "title": "Complete",
-        "to": 100
-      }
-    },
-    "Cluster Throughput": {
-      "source": statsSourceUrl("node_*.test.*_throughput", {"from": "-2minutes", "func": "sumSeries"}),
-      "refresh_interval": 2000,
-      "TimeSeries": {
-        "parent": "#cluster-throughput",
-        "title": "Cluster Throughput",
-        "num_labels": 0,
-      },
-    },
-    "Cluster Latency": {
-      "source": statsSourceUrl("node_*.test.read_latency, node_*.test.write_latency", {"from": "-2minutes", "func": "averageSeries"}),
-      "refresh_interval": 2000,
-      "TimeSeries": {                
-        "parent": "#cluster-latency",            
-        "title": "Cluster Latency",
-      },                                  
-    },
-    "Vnode Gets": {
-      "source": statsSourceUrl("node_*.riak.vnode_gets", {"from": "-5minutes"}),
-      "refresh_interval": 2000,
-      "TimeSeries": {
-        "parent": "#objects-per-node",
-        "title": "Vnode Gets",
-      },                 
-    }, 
-    "Read Repairs": {
-      "source": statsSourceUrl("node_*.riak.read_repairs", {"from": "-2minutes"}),
-      "refresh_interval": 2000,
-      "TimeSeries": {
-        "parent": "#handoffs",
-        "title": "Read Repairs",
-      },                 
-    }, 
-};
+  %NODE_CONFIG%
+}
 
-%NODE_CONFIG%
+function saveGraphConfig() {
+  $.cookie("graphConfig", JSON.stringify(graphConfig));
+}
+
+function getGraphConfig() {
+  var config = JSON.parse($.cookie("graphConfig"));
+  if(config == null) {
+    graphConfig = {};
+  }
+  else {
+    graphConfig = config;
+  }
+}
+
 
 $(document).ready(function(){
-    $('#start-button').click(function(){
+  $('#start-button').click(function(){
     $.get('/cgi-bin/write.sh');                                                                                                                                                                                                              
     $(this).attr("disabled", "disabled");
     return false;
   });                                                                                                                                                                                                                                        
+
   $('#verify-button').click(function(){
     $.get('/cgi-bin/verify.sh');                                                                                                                                                                                                             
     $(this).attr("disabled", "disabled");
     return false;
   });                                                                                                                                                                                                                                        
+
   $('#delete-button').click(function(){
     $.get('/cgi-bin/delete.sh');                                                                                                                                                                                                             
     $(this).attr("disabled", "disabled");
     return false;
   });                                                                                                                                                                                                                                        
+
   $('#reset-button').click(function(){
     $.get('/cgi-bin/stop.sh');                                                                                                                                                                                                               
     $('#start-button').removeAttr("disabled");
@@ -185,29 +173,36 @@ $(document).ready(function(){
     return false;
   });
 
-  //When the link that triggers the message is clicked fade in overlay/msgbox
+  // Fade in the spinner on control button click 
   $(".btn-orange").click(function(){
     $('#dim').fadeIn().delay(3000).fadeOut();
     return false;
   });
 
   $('#add-graph-button').click(function() {
-    addGraph($('#graph_title').val(), $("#select_attribute").val(), '-2minutes', '2000', 'TimeSeries');    
+    if(!graphConfig[$('#graph_title').val()] && $('#select_attribute').val() != null) {
+      from = $('#graph_time').val() || '2';
+      addGraph($('#graph_title').val(), $('#select_attribute').val(), {"from": '-' + from + 'minutes'});    
+    }
+
+    $('#graph_title').val(null);
+    $('#select_attribute').val('').trigger('liszt:updated');
+    $('#graph_time').val(null);
   });
 
-
-  $('#dynamic-rows li').live('mouseenter', function() {
+  $('.timeseries').live('mouseenter', function() {
     $(this).append('<button type="button" class="close">&times;</button>')
     $('.close').click(function() {
       removeGraph(graphConfig, '#' + $(this).parent().attr('id'));
     });
   });
 
-  $('#dynamic-rows li').live('mouseleave', function() {
+  $('.timeseries').live('mouseleave', function() {
     $('.close').remove();
   });
 
-  $('#sortable2').sortable();
+  $('.sortable').sortable();
+  $('html').disableSelection();
 
   // Populate metrics object
   $.getJSON('/metrics/index.json', function(data) { 
@@ -233,12 +228,16 @@ $(document).ready(function(){
 
     $.each(metrics, function(node) {
       var optGroup = $('<optgroup label="' + node + '" />');
-      $.each(metrics[node]['riak'], function(key, metric) {
-       optGroup.append(new Option(node + '.' + 'riak' + '.' + metric)); 
-      });
-      $.each(metrics[node]['test'], function(key, metric) {
-       optGroup.append(new Option(node + '.' + 'test' + '.' + metric)); 
-      });
+      if(metrics[node]['riak']) {
+        $.each(metrics[node]['riak'], function(key, metric) {
+         optGroup.append(new Option(node + '.' + 'riak' + '.' + metric)); 
+        });
+      }
+      if(metrics[node]['riak']) {
+        $.each(metrics[node]['test'], function(key, metric) {
+         optGroup.append(new Option(node + '.' + 'test' + '.' + metric)); 
+        });
+      }
       $('#select_attribute').append(optGroup);
     });
     $('#select_attribute').chosen();
@@ -248,6 +247,6 @@ $(document).ready(function(){
 });
 
 // Adjust graph sizes on window resize
-$(window).bind("resize", function(){
+$(window).bind('resize', function(){
   buildGraphs();
 });

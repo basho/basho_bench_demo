@@ -25,6 +25,10 @@ sudo apt-get -y install build-essential libncurses5-dev openssl libssl-dev
 # Dependencies for Basho Bench
 sudo apt-get -y install r-recommended
 
+# Dependencies for app
+sudo apt-get -y install rubygems
+sudo gem install statsd-ruby json --no-ri --no-rdoc
+
 # Install Apache
 sudo apt-get -y install apache2 libapache2-mod-wsgi
 
@@ -94,8 +98,6 @@ WSGISocketPrefix /var/run/apache2
 <VirtualHost *:80>
         ServerName graphite
         DocumentRoot "/opt/graphite/webapp"
-        ErrorLog /opt/graphite/storage/log/webapp/error.log
-        CustomLog /opt/graphite/storage/log/webapp/access.log common
 
         WSGIDaemonProcess graphite processes=5 threads=5 display-name='%{GROUP}' inactivity-timeout=120
         WSGIProcessGroup graphite

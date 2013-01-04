@@ -23,7 +23,7 @@ function create_bench_config {
 
   # Set the number of operations to perform
   sed -i "s/%START_OP%/$START_OP/g" $BASHO_BENCH_PATH/config/$MY_NODE.* 
-  sed -i "s/%OPERATIONS%/$num_operations/g" $BASHO_BENCH_PATH/config/$MY_NODE.* 
+  sed -i "s/%OPERATIONS%/$NUM_OPERATIONS/g" $BASHO_BENCH_PATH/config/$MY_NODE.* 
 
   # Set the operation type
   sed -i "s/%OPERATION%/put/g" $BASHO_BENCH_PATH/config/$MY_NODE.write 
