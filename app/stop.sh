@@ -17,7 +17,7 @@ for NODE in ${!NODES[@]}; do
   printf "${NODE}.test.read_latency:0|g" >&3
   printf "${NODE}.test.write_latency:0|g" >&3
   printf "${NODE}.test.delete_latency:0|g" >&3
-  printf "${NODE}.test.error:0|g" >&3
+  printf "${NODE}.test.error_count:0|g" >&3
 done
 
 printf "cluster.test.total_transactions:0|g" >&3

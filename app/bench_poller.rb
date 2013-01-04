@@ -16,12 +16,13 @@ loop do
   nodes.each do |node, ip|
     prefix = "#{node}.test"
 
-    node_stopped = 1
-    node_failover_stopped = 1
+    node_stopped = -1
+    node_failover_stopped = -1
 
     if(File::exists?("#{basho_bench_path}/#{node}/current/console.log"))
       node_stopped = %x(tail -qn 1 #{basho_bench_path}/#{node}/current/console.log 2>/dev/null | grep -c 'shutdown\\|stopped\\|econnrefused').to_i
     end
+
     if(!Dir.glob("#{basho_bench_path}/#{node}_*/current").empty?)
       node_failover_stopped = %x(tail -qn 1 #{basho_bench_path}/#{node}_*/current/console.log 2>/dev/null | grep -c 'shutdown\\|stopped\\|econnrefused').to_i
     end
@@ -38,7 +39,7 @@ loop do
       node_write_latency  = %x(echo "#{node_write_status}" | awk '{print $6}').to_i
       node_delete_latency = %x(echo "#{node_delete_status}" | awk '{print $6}').to_i
 
-      node_error_count    = %x(cat #{basho_bench_path}/#{node}*/current/errors.csv 2>/dev/null| cut -f2 -d ',' | grep '[[:digit:]]' | paste -sd+ | bc).to_i
+      node_error_count    = %x(cat #{basho_bench_path}/#{node}*/current/summary.csv 2>/dev/null| cut -f5 -d ',' | grep '[[:digit:]]' | paste -sd+ | bc).to_i
     else
       # Set all values for inactive nodes to 0
       node_read_count     = 0
@@ -47,17 +48,20 @@ loop do
       node_read_latency   = 0
       node_write_latency  = 0
       node_delete_latency = 0
-      node_error_count    = 0
     end
 
-    # Send data
+    # Save data
     statsd.gauge("#{prefix}.read_throughput", node_read_count)
     statsd.gauge("#{prefix}.write_throughput", node_write_count)
     statsd.gauge("#{prefix}.delete_throughput", node_delete_count)
     statsd.gauge("#{prefix}.read_latency", node_read_latency/1000)
     statsd.gauge("#{prefix}.write_latency", node_write_latency/1000)
     statsd.gauge("#{prefix}.delete_latency", node_delete_latency/1000)
-    statsd.gauge("#{prefix}.error_count", node_error_count)
+
+    if(node_error_count)
+      statsd.gauge("#{prefix}.error_count", node_error_count)
+      node_error_count = nil
+    end
   end # END for loop
 
   # Record the overall completion percentage
