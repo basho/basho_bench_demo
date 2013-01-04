@@ -1,4 +1,3 @@
-var graphConfig = {};
 getGraphConfig();
 var metrics = {}; 
 var g = new Graphene;
@@ -121,7 +120,7 @@ function addGraph(name, source, opts) {
   buildGraphs(tempObj);
 }
 
-if(graphConfig == null) {
+if($.isEmptyObject(graphConfig)) {
   addGraph("Throughput", "node_*.test.*_throughput", {"refresh_interval": 1000, "from": "-2seconds", "type": "GaugeLabel", "parent_element": "#hero-one", "unit": "req/s", "func": "sumSeries"});
   addGraph("Latency", "node_*.test.*_latency", {"refresh_interval": 4000, "from": "-2seconds", "type": "GaugeGadget", "parent_element": "#hero-one", "to": 20, "func": "averageSeries"});
   addGraph("Errors", "node_*.test.error_count", {"refresh_interval": 1000, "from": "-2seconds", "type": "GaugeLabel", "parent_element": "#hero-three", "value_format": "02d", "func": "sumSeries"});
