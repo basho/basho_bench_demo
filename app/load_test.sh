@@ -1,131 +1,53 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 source /opt/app/config.txt
+source /opt/app/functions.sh
 
-test_type=$1
+TEST_TYPE=$1
+ACTIVE_NODES=${#NODES[@]}
+declare -A NODE_STATUS
 
-statsd_host="${STATSD_HOST:-127.0.0.1}"
-statsd_port="${STATSD_PORT:-8125}"
-
-function cleanup
-{
-  # Close UDP socket
-  exec 3<&-
-  exec 3>&-
-
-  # Kill background processes 
-  for node in ${!nodes[@]}; do
-    kill -9 ${pids[$node]} 2>/dev/null
-  done
+function start_worker {
+  WORKER=$1
+  HOME=/opt $BASHO_BENCH_PATH/basho_bench -d $BASHO_BENCH_PATH/results/$WORKER $BASHO_BENCH_PATH/config/$WORKER.$TEST_TYPE 2>&1 >/dev/null &
 }
 
-# Clean up old data before we get started
-cleanup
-
-# Setup UDP socket with statsd server
-exec 3<> /dev/udp/$statsd_host/$statsd_port
-
 # Start Basho Bench test
-for node in ${!nodes[@]}; do
-  HOME=/opt $basho_bench_path/basho_bench -d $basho_bench_path/results/$node $basho_bench_path/config/$node.$test_type &
-  pids[$node]=$!
-  echo ${pids[$node]}
+for NODE in ${!NODES[@]}; do
+  start_worker $NODE
 done
 
-sleep 5
+sleep 3
 
-while true; do
+while [[ $ACTIVE_NODES -gt 0 ]]; do
   # Reset vars for next log read cycle
-  cluster_read_count=0
-  cluster_write_count=0
-  cluster_read_latency=0
-  cluster_write_latency=0
-  cluster_error_count=0
-  unset total_trans
-  active_nodes=$node_count
-  i=0
+  ACTIVE_NODES=${#NODES[@]}
 
   # Evaluates the Basho Bench logs for each node
-  for node in ${!nodes[@]}; do
-    node_complete=$(tail -1 $basho_bench_path/results/$node/current/console.log 2>/dev/null | grep -c 'shutdown')
-    node_error=$(tail -1 $basho_bench_path/results/$node/current/console.log 2>/dev/null | grep -c 'econnrefused')
-
-    if [ $node_complete -eq 0 -a $node_error -eq 0 ]; then
-      node_read_status=$(tail -1 $basho_bench_path/results/$node/current/get_latencies.csv 2>/dev/null | tr -d ',')
-      node_write_status=$(tail -1 $basho_bench_path/results/$node/current/put_latencies.csv 2>/dev/null | tr -d ',')
-      
-      node_read_count=$(echo $node_read_status | awk '{print $3}')
-      node_write_count=$(echo $node_write_status | awk '{print $3}')
-      node_read_latency=$(echo $node_read_status | awk '{print $6}')
-      node_write_latency=$(echo $node_write_status | awk '{print $6}')
-
-      total_trans[$i]=$(cat $basho_bench_path/results/$node/current/summary.csv 2>/dev/null | tr -d ',' | awk '{print $3}' | paste -sd+ | bc)
-      i=$((i + 1))
-    else
-      # Set all values for inactive nodes to 0
-      node_read_count=0
-      node_write_count=0
-      node_read_latency=0
-      node_write_latency=0
-      active_nodes=$((active_nodes - 1))
+  for NODE in ${!NODES[@]}; do
+    # Skip this node if it is complete or failed
+    if [[ ${NODE_STATUS["${NODE}_complete"]} -gt 0 ]] || [[ ${NODE_STATUS["${NODE}_fail"]} -gt 0 ]]; then
+      ACTIVE_NODES=$((ACTIVE_NODES - 1))
+      continue
     fi
 
-    # Set values to 0 if variable is null
-    node_read_count=${node_read_count:-0}
-    node_write_count=${node_write_count:-0}
-    node_read_latency=${node_read_latency:-0}
-    node_write_latency=${node_write_latency:-0}
+    # If the previous node was in a failed state, spwan new Basho Bench instance with the current node
+    if [[ ${NODE_STATUS["${PREVIOUS_NODE}_fail"]} -gt 0 ]]; then
+      # Create new basho bench config
+      create_bench_config $NODE 0 $PREVIOUS_NODE   
 
-    cluster_read_count=$((cluster_read_count + $node_read_count))
-    cluster_write_count=$((cluster_write_count + $node_write_count))
-    cluster_read_latency=$((cluster_read_latency + $node_read_latency)) 
-    cluster_write_latency=$((cluster_write_latency + $node_write_latency))
-
-    # Send data
-    printf "${node}_read_throughput:$node_read_count|g" >&3
-    printf "${node}_write_throughput:$node_write_count|g" >&3
-    printf "${node}_read_latency:$((node_read_latency/1000))|g" >&3
-    printf "${node}_write_latency:$((node_write_latency/1000))|g" >&3
-
-    if [ $node_error -eq 1 ]; then
-      printf "error_${node}:1|g" >&3
+      # Start basho bench process
+      NEW_WORKER="${NODE}_${PREVIOUS_NODE}"
+      start_worker $NEW_WORKER
+      rm -f ${BASHO_BENCH_PATH}/results/${PREVIOUS_NODE}/current
     fi
 
-    echo "${node}_read_throughput:$node_read_count|g"
-    echo "${node}_write_throughput:$node_write_count|g"
-    echo "${node}_read_latency:$((node_read_latency/1000))|g"
-    echo "${node}_write_latency:$((node_write_latency/1000))|g" 
-  done # END node for loop
+    # Update node status
+    NODE_STATUS["${NODE}_complete"]=$(tail -qn 1 $BASHO_BENCH_PATH/results/${NODE}/current/console.log 2>/dev/null | grep -c 'shutdown\|stopped')
+    NODE_STATUS["${NODE}_fail"]=$(tail -qn 1 $BASHO_BENCH_PATH/results/${NODE}/current/console.log 2>/dev/null | grep -c 'econnrefused')
 
-  cluster_error_count=$(cat $basho_bench_path/results/*/current/errors.csv 2>/dev/null| cut -f4 -d '"' | paste -sd+ | bc)
-
-  if [ $active_nodes -gt 0 ]; then
-    cluster_read_latency=$((cluster_read_latency / $active_nodes / 1000))
-    cluster_write_latency=$((cluster_write_latency / $active_nodes / 1000))
-    readarray -t sorted_trans < <(for a in "${total_trans[@]}"; do echo "$a"; done | sort)
-    complete_percent=$(echo "scale=2;${sorted_trans[0]}/10000*100" | bc)
-  else
-    cluster_read_latency=0
-    cluster_write_latency=0
-    complete_percent=100
-  fi
-
-  printf "cluster_read_throughput:$cluster_read_count|g" >&3
-  printf "cluster_write_throughput:$cluster_write_count|g" >&3
-  printf "cluster_read_latency:$cluster_read_latency|g" >&3
-  printf "cluster_write_latency:$cluster_write_latency|g" >&3
-  printf "cluster_error_count:$cluster_error_count|g" >&3
-  printf "test_completion:$complete_percent|g" >&3
-
-  echo "cluster_error_count:$cluster_error_count|g"
-
-  if [[ $active_nodes -eq 0 ]]; then
-    # Close UDP socket
-    cleanup
-    exit 0
-  fi
+    PREVIOUS_NODE=$NODE
+  done # END for loop
 
   sleep 1
-done
-
-trap cleanup EXIT
+done # END while loop

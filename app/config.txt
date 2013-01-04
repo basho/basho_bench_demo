@@ -1,16 +1,20 @@
-declare -A nodes                                                          
+declare -A NODES                       
 
-# Add the IPs for your nodes.  You can add as many nodes as you need
-nodes=(
+NODES=(
   [node_1]='IP_HERE'
   [node_2]='IP_HERE'
   [node_3]='IP_HERE'
   [node_4]='IP_HERE'
 )
 
-# The number of operations to be run per node
-num_operations='10000'
+NUM_OPERATIONS='10000'
 
-node_count=${#nodes[@]}
+NODE_COUNT=${#NODES[@]}
 
-basho_bench_path='/opt/basho_bench'
+BASHO_BENCH_PATH='/opt/basho_bench'
+
+STATSD_HOST="127.0.0.1"
+STATSD_PORT=8125
+
+GRAPHITE_SERVER="127.0.0.1"
+GRAPHITE_PORT=2003

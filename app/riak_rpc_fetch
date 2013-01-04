@@ -1,0 +1,7 @@
+#!/usr/bin/env escript
+%%! -name riakrpcfetch@127.0.0.1 -setcookie riak 
+
+main([Node, Module, Function]) ->
+    net_kernel:start([node(), longnames]),
+    Output = rpc:call(list_to_atom(Node), list_to_atom(Module), list_to_atom(Function), []),
+    io:format("~p~n", [Output]).
