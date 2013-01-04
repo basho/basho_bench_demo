@@ -218,6 +218,12 @@ python /opt/graphite/bin/carbon-cache.py start
 # Starts StatsD
 nohup node /opt/statsd/stats.js /opt/statsd/localConfig.js &
 
+# Start Riak Poller
+/opt/app/riak_poller_control.rb start
+
+# Start Basho Bench Poller
+/opt/app/bench_poller_control.rb start
+
 exit 0
 EOF
 
