@@ -70,7 +70,7 @@ loop do
   complete_percent = (total_trans*100/num_operations/nodes.length).ceil
 
   # Fudge factor for Basho Bench lossy logging
-  if(complete_percent == 99)
+  if(complete_percent == 99 || complete_percent > 100)
     complete_percent = 100
   end
 

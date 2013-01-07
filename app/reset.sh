@@ -8,6 +8,7 @@ ps aux | grep 'basho_bench\|load_test.sh' | grep -v grep | awk '{print $2}' | xa
 rm -rf $BASHO_BENCH_PATH/state/*
 rm -rf $BASHO_BENCH_PATH/results/*/current
 
+# Open UDP socket to Statsd
 exec 3<> /dev/udp/$STATSD_HOST/$STATSD_PORT
 
 for NODE in ${!NODES[@]}; do
@@ -23,8 +24,7 @@ done
 printf "cluster.test.total_transactions:0|g" >&3
 printf "cluster.test.completion:0|g" >&3
 
-# Close UDP socket
+# Close UDP socket to Statsd
 exec 3<&-
 exec 3>&-
-
 

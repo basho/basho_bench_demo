@@ -118,7 +118,6 @@ function addGraph(name, source, opts) {
   }
 
   saveGraphConfig();
-console.error(graphConfig);
   buildGraphs(tempObj);
 }
 
@@ -127,12 +126,13 @@ if($.isEmptyObject(graphConfig)) {
   addGraph("Latency", "node_*.test.*_latency", {"refresh_interval": 4000, "from": "-2seconds", "type": "GaugeGadget", "parent_element": "#hero-one", "to": 20, "func": "averageSeries"});
   addGraph("Errors", "node_*.test.error_count", {"refresh_interval": 1000, "from": "-2seconds", "type": "GaugeLabel", "parent_element": "#hero-three", "value_format": "02d", "func": "sumSeries"});
   addGraph("Object Count", "cluster.riak.object_count", {"refresh_interval": 1000, "from": "-2seconds", "type": "GaugeLabel", "parent_element": "#hero-two", "value_format": ",02d"});
-  addGraph("Completion", "cluster.test.completion", {"refresh_interval": 1000, "from": "-2seconds", "type": "GaugeGadget", "parent_element": "#hero-two"});
+  addGraph("Complete", "cluster.test.completion", {"refresh_interval": 1000, "from": "-2seconds", "type": "GaugeGadget", "parent_element": "#hero-two"});
 
-  addGraph('node_1', 'node_1.test.*_throughput');
-  addGraph('node_3', 'node_3.test.*_throughput');
-  addGraph('node_2', 'node_2.test.*_throughput');
-  addGraph('node_4', 'node_4.test.*_throughput');
+  
+addGraph('node_1', 'node_1.test.*_throughput');
+addGraph('node_3', 'node_3.test.*_throughput');
+addGraph('node_2', 'node_2.test.*_throughput');
+addGraph('node_4', 'node_4.test.*_throughput');
 }
 
 function saveGraphConfig() {
@@ -151,14 +151,14 @@ function getGraphConfig() {
 
 
 $(document).ready(function(){
-  $('#start-button').click(function(){
+  $('#write-button').click(function(){
     $.get('/cgi-bin/write.sh');                                                                                                                                                                                                              
     $(this).attr("disabled", "disabled");
     return false;
   });                                                                                                                                                                                                                                        
 
-  $('#verify-button').click(function(){
-    $.get('/cgi-bin/verify.sh');                                                                                                                                                                                                             
+  $('#read-button').click(function(){
+    $.get('/cgi-bin/read.sh');                                                                                                                                                                                                             
     $(this).attr("disabled", "disabled");
     return false;
   });                                                                                                                                                                                                                                        
@@ -170,9 +170,9 @@ $(document).ready(function(){
   });                                                                                                                                                                                                                                        
 
   $('#reset-button').click(function(){
-    $.get('/cgi-bin/stop.sh');                                                                                                                                                                                                               
-    $('#start-button').removeAttr("disabled");
-    $('#verify-button').removeAttr("disabled");
+    $.get('/cgi-bin/reset.sh');
+    $('#write-button').removeAttr("disabled");
+    $('#read-button').removeAttr("disabled");
     $('#delete-button').removeAttr("disabled");
     return false;
   });

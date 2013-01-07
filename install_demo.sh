@@ -27,7 +27,7 @@ sudo apt-get -y install r-recommended
 
 # Dependencies for app
 sudo apt-get -y install rubygems
-sudo gem install statsd-ruby json --no-ri --no-rdoc
+sudo gem install statsd-ruby json daemons --no-ri --no-rdoc
 
 # Install Apache
 sudo apt-get -y install apache2 libapache2-mod-wsgi
