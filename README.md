@@ -9,8 +9,8 @@ basho_bench_gui
 
 **Configuration**
 
-1. Edit /opt/app/config.txt to set your node IPs and operation count
-2. Run /opt/app/setup.sh
+1. Edit /opt/app/config.rb to set your node IPs and operation count
+2. Run /opt/app/setup.rb
 
 **Viewing the GUI**
 

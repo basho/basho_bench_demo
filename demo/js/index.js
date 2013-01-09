@@ -129,10 +129,10 @@ if($.isEmptyObject(graphConfig)) {
   addGraph("Complete", "cluster.test.completion", {"refresh_interval": 1000, "from": "-2seconds", "type": "GaugeGadget", "parent_element": "#hero-two"});
 
   
-addGraph('node_1', 'node_1.test.*_throughput');
-addGraph('node_3', 'node_3.test.*_throughput');
-addGraph('node_2', 'node_2.test.*_throughput');
-addGraph('node_4', 'node_4.test.*_throughput');
+  addGraph('node_1', 'node_1.test.*_throughput');
+  addGraph('node_2', 'node_2.test.*_throughput');
+  addGraph('node_3', 'node_3.test.*_throughput');
+  addGraph('node_4', 'node_4.test.*_throughput');
 }
 
 function saveGraphConfig() {
@@ -152,25 +152,25 @@ function getGraphConfig() {
 
 $(document).ready(function(){
   $('#write-button').click(function(){
-    $.get('/cgi-bin/write.sh');                                                                                                                                                                                                              
+    $.get('/cgi-bin/write.rb');                                                                                                                                                                                                              
     $(this).attr("disabled", "disabled");
     return false;
   });                                                                                                                                                                                                                                        
 
   $('#read-button').click(function(){
-    $.get('/cgi-bin/read.sh');                                                                                                                                                                                                             
+    $.get('/cgi-bin/read.rb');                                                                                                                                                                                                             
     $(this).attr("disabled", "disabled");
     return false;
   });                                                                                                                                                                                                                                        
 
   $('#delete-button').click(function(){
-    $.get('/cgi-bin/delete.sh');                                                                                                                                                                                                             
+    $.get('/cgi-bin/delete.rb');                                                                                                                                                                                                             
     $(this).attr("disabled", "disabled");
     return false;
   });                                                                                                                                                                                                                                        
 
   $('#reset-button').click(function(){
-    $.get('/cgi-bin/reset.sh');
+    $.get('/cgi-bin/reset.rb');
     $('#write-button').removeAttr("disabled");
     $('#read-button').removeAttr("disabled");
     $('#delete-button').removeAttr("disabled");

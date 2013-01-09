@@ -1,5 +1,5 @@
-#!/bin/bash
- 
+#!/usr/bin/env bash 
+
 SOURCE_DIR=$(pwd)
 
 #

@@ -6,18 +6,19 @@ require 'net/http'
 require 'uri'
 require 'json'
 
+require '/opt/app/config.rb'
+
 statsd = Statsd.new
 riak_rpc_path = '/opt/app/riak_rpc_fetch'
-
-nodes = {'node_1' => '10.34.94.11', 'node_2' => '10.78.194.106', 'node_3' => '10.204.214.109', 'node_4' => '10.40.107.127'}
 
 stats = ['vnode_gets', 'vnode_puts', 'read_repairs', 'node_gets', 'node_puts', 'cpu_nprocs', 'sys_process_count', 'pbc_connects', 'pbc_active', 
   'node_get_fsm_time_mean', 'node_get_fsm_time_median', 'node_get_fsm_time_95', 'node_get_fsm_time_99', 'node_get_fsm_time_100', 
   'node_put_fsm_time_mean', 'node_put_fsm_time_median', 'node_put_fsm_time_95', 'node_put_fsm_time_99', 'node_put_fsm_time_100']
 
 loop do
-  nodes.each do |node, ip|
+  $nodes.each do |node, config|
     prefix = "#{node}.riak"
+    ip = config[:ip]
 
     # Test if node is up
     ping_uri = URI.parse("http://#{ip}:8098/ping")
