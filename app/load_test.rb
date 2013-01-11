@@ -12,6 +12,7 @@ end
 active_nodes = $nodes.length
 
 def start_worker(worker)
+puts "Starting worker: #{worker}"
   job = fork do
     exec "HOME=/opt #{$basho_bench_path}/basho_bench -d #{$basho_bench_path}/results/#{worker} #{$basho_bench_path}/config/#{worker}.#{$test_type} 2>&1 >/dev/null &"
   end
@@ -29,6 +30,8 @@ end
 # Wait for Basho Bench to spin up
 sleep 3
 
+previous_node = $nodes.keys.last
+
 while active_nodes > 0 
   # Reset vars for next log read cycle
   active_nodes = $nodes.length
@@ -42,7 +45,7 @@ while active_nodes > 0
     end
 
     # If the previous node was in a failed state, spwan new Basho Bench instance with the current node
-    if $nodes[node][:fail] > 0
+    if $nodes[previous_node][:fail] > 0
       # Create new basho bench config
       %x(/opt/app/create_bench_config.rb #{node} 0 #{previous_node})   
 
@@ -50,12 +53,12 @@ while active_nodes > 0
       new_worker = "#{node}_#{previous_node}"
       start_worker(new_worker)
 
-      %x(rm -f #{basho_bench_path}/results/#{previous_node}/current)
+      %x(rm -f #{$basho_bench_path}/results/#{previous_node}/current)
     end
 
     # Update node status
-    $nodes[node][:fail]     = %x(tail -qn 1 #{$basho_bench_path}/results/#{node}/current/console.log 2>/dev/null | grep -c 'econnrefused').to_i 
-    $nodes[node][:complete] = %x(tail -qn 1 #{$basho_bench_path}/results/#{node}/current/console.log 2>/dev/null | grep -c 'shutdown\\|stopped').to_i
+    $nodes[node][:fail]     = %x(cat #{$basho_bench_path}/results/#{node}/current/console.log 2>/dev/null | grep -c 'econnrefused\\|etimedout\\|disconnected').to_i 
+    $nodes[node][:complete] = %x(cat #{$basho_bench_path}/results/#{node}/current/console.log 2>/dev/null | grep -c 'shutdown\\|stopped').to_i
 
     previous_node = node
   end 

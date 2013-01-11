@@ -20,11 +20,11 @@ loop do
     node_failover_stopped = -1
 
     if(File::exists?("#{basho_bench_results}/#{node}/current/console.log"))
-      node_stopped = %x(tail -qn 1 #{basho_bench_results}/#{node}/current/console.log 2>/dev/null | grep -c 'shutdown\\|stopped\\|econnrefused').to_i
+      node_stopped = %x(cat #{basho_bench_results}/#{node}/current/console.log 2>/dev/null | grep -c 'shutdown\\|stopped\\|econnrefused\\|etimedout\\|disconnected').to_i
     end
 
     if(!Dir.glob("#{basho_bench_results}/#{node}_*/current").empty?)
-      node_failover_stopped = %x(tail -qn 1 #{basho_bench_results}/#{node}_*/current/console.log 2>/dev/null | grep -c 'shutdown\\|stopped\\|econnrefused').to_i
+      node_failover_stopped = %x(tail -qn 1 #{basho_bench_results}/#{node}_*/current/console.log 2>/dev/null | grep -c 'shutdown\\|stopped\\|econnrefused\\|etimedout').to_i
     end
 
     if(node_stopped == 0 || node_failover_stopped == 0)

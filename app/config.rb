@@ -5,6 +5,6 @@ $nodes = {
   'node_4' => {:ip => 'IP_HERE'},
 }
 
-$num_operations = 10000
+$num_operations = 100000
 
 $basho_bench_path = '/opt/basho_bench'
