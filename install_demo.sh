@@ -26,7 +26,7 @@ sudo apt-get -y install build-essential libncurses5-dev openssl libssl-dev
 sudo apt-get -y install r-recommended
 
 # Dependencies for app
-sudo apt-get -y install rubygems
+sudo apt-get -y install rubygems bc
 sudo gem install statsd-ruby json daemons --no-ri --no-rdoc
 
 # Install Apache
