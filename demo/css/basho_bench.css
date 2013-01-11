@@ -114,7 +114,7 @@
 }
 .hero-row
 {
-  margin-top:2em;
+  margin-top:-1em;
   padding-bottom:1em;
 }
 
@@ -130,6 +130,10 @@
   box-shadow: none; 
 */
   list-style-type: none;
+}
+
+.glview {
+  margin-top: 3em;
 }
 
 #controls {
