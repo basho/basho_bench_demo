@@ -189,7 +189,6 @@ cat >> /tmp/riakc_pb.template << EOF
 {driver, basho_bench_driver_riakc_pb}.
 {key_generator, {int_to_str, {partitioned_sequential_int, %START_OP%, %OPERATIONS%}}}.
 {riakc_pb_bucket, <<"bench">>}.
-{sequential_int_state_dir, "%STATE_DIR%"}.
 {value_generator, {fixed_bin, 1}}.
 {riakc_pb_ips, [{%IP%}]}.
 {riakc_pb_replies, 1}.

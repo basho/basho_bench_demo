@@ -9,7 +9,7 @@ require '/opt/app/config.rb'
 statsd = Statsd.new
 
 # Kill basho bench processes
-%x(pgrep 'basho_bench|load_test.rb' | xargs -I % kill -9 %)
+%x(pgrep -f 'basho_bench|load_test.rb' | xargs -I % kill -9 %)
 
 # Remove old state directories
 FileUtils.rm_r Dir.glob("#{$basho_bench_path}/state/*"), :force => true

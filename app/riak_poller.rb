@@ -21,10 +21,14 @@ loop do
     ip = config[:ip]
 
     # Test if node is up
-    ping_uri = URI.parse("http://#{ip}:8098/ping")
+    http = Net::HTTP.new(ip, 8098)
+    http.open_timeout = 2
+
+    uri = URI.parse("http://#{ip}:8098/ping")
+    request = Net::HTTP::Get.new(uri.request_uri)
 
     begin
-      ping = Net::HTTP.get_response(ping_uri).body
+      ping = http.request(request)
     rescue Exception
       # skip the down nodes
       next

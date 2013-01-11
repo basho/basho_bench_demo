@@ -1,5 +1,9 @@
 #!/usr/bin/env ruby
 
+require 'rubygems'
+require 'net/http'
+require 'uri'
+
 require '/opt/app/config.rb'
 
 $test_type = ARGV[0]
@@ -12,7 +16,6 @@ end
 active_nodes = $nodes.length
 
 def start_worker(worker)
-puts "Starting worker: #{worker}"
   job = fork do
     exec "HOME=/opt #{$basho_bench_path}/basho_bench -d #{$basho_bench_path}/results/#{worker} #{$basho_bench_path}/config/#{worker}.#{$test_type} 2>&1 >/dev/null &"
   end
@@ -56,8 +59,20 @@ while active_nodes > 0
       %x(rm -f #{$basho_bench_path}/results/#{previous_node}/current)
     end
 
+    # Test if node is up
+    http = Net::HTTP.new($nodes[node][:ip], 8098)
+    http.open_timeout = 2
+
+    uri = URI.parse("http://#{$nodes[node][:ip]}:8098/ping")
+    request = Net::HTTP::Get.new(uri.request_uri)
+
+    begin
+      ping = http.request(request)
+    rescue Exception
+      $nodes[node][:fail] = 1
+    end
+
     # Update node status
-    $nodes[node][:fail]     = %x(cat #{$basho_bench_path}/results/#{node}/current/console.log 2>/dev/null | grep -c 'econnrefused\\|etimedout\\|disconnected').to_i 
     $nodes[node][:complete] = %x(cat #{$basho_bench_path}/results/#{node}/current/console.log 2>/dev/null | grep -c 'shutdown\\|stopped').to_i
 
     previous_node = node
