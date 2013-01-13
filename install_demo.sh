@@ -191,7 +191,7 @@ cat >> /tmp/riakc_pb.template << EOF
 {riakc_pb_bucket, <<"bench">>}.
 {value_generator, {fixed_bin, 1}}.
 {riakc_pb_ips, [{%IP%}]}.
-{riakc_pb_replies, 1}.
+{riakc_pb_replies, 2}.
 {operations, [{%OPERATION%, 1}]}.
 
 EOF
