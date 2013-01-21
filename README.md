@@ -1,10 +1,10 @@
-basho_bench_gui
+basho_bench_demo
 ===============
 
 **Installation**
 
-    $ git clone http://github.com/deanproctor/basho_bench_gui
-    $ cd basho_bench_gui
+    $ git clone http://github.com/basho/basho_bench_demo
+    $ cd basho_bench_demo
     $ sudo ./install_demo.sh
 
 **Configuration**
