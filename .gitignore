@@ -1,0 +1,4 @@
+.vagrant
+vagrant.conf
+*.swp
+*.tar.gz*
