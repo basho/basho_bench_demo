@@ -234,3 +234,5 @@ sudo cp /tmp/rc.local /etc/rc.local
 sudo python /opt/graphite/bin/carbon-cache.py start
 sudo nohup node /opt/statsd/stats.js /opt/statsd/localConfig.js &
 sudo apache2ctl restart
+
+touch /root/basho-bench-gui-installed

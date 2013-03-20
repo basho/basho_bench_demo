@@ -13,6 +13,7 @@ node default {
   exec { $app_install_script :
     cwd => $app_home,
     timeout => 0,
+    creates => "/root/basho-bench-gui-installed",
   }
 
   file { $app_config_file :
