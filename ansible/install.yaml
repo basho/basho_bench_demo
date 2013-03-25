@@ -1,0 +1,41 @@
+---
+- hosts: riakservers
+  vars:
+    ip_addr: ${ansible_eth0.ipv4.address}
+    backend: bitcask
+  sudo: True
+  tasks:
+  - copy: src=files/ulimit dest=/etc/default/riak
+  - lineinfile: line="session    required   pam_limits.so" dest=$item regexp="session    required   pam_limits.so" insertafter="^# end of pam-auth-update config"
+    with_items:
+      - /etc/pam.d/common-session
+      - /etc/pam.d/common-session-noninteractive
+  - shell: grep root /etc/fstab|cut -f1 -d' '
+    register: rootvol
+  - debug: msg="root volume is ${rootvol.stdout}"
+  - mount: name=/ src=${rootvol.stdout} opts="noatime,barrier=0,errors=remount-ro" fstype=ext4 state=present
+  - apt_key: url=http://apt.basho.com/gpg/basho.apt.key state=present
+  - template: src=templates/basho.list dest=/etc/apt/sources.list.d/
+  - apt: pkg=riak update_cache=yes
+  - name: create sysctl.d
+    file: dest=/etc/sysctl.d state=directory
+  - name: configure sysctl
+    copy: src=files/riak-sysctl.conf dest=/etc/sysctl.d/riak.conf owner=root group=root mode=0644
+    tags: os tuneables
+    notify: update sysctl
+  - name: confgure rc.local
+    copy: src=files/rc.local dest=/etc/ owner=root group=root mode=0644
+    notify: source rclocal
+  - name: update limits file
+    copy: src=files/riak-limits.d.conf dest=/etc/security/limits.d/riak.conf owner=root group=root mode=0644
+  - name: configure app.config
+    template: src=templates/app.config dest=/etc/riak/app.config
+    tags: configfiles
+  - name: configure vm.args
+    template: src=templates/vm.args dest=/etc/riak/vm.args
+    tags: configfiles
+  - name: start riak
+    service: name=riak state=started
+  - wait_for: host=$ip_addr port=8098 state=started timeout=30
+  handlers:
+  - include: handlers/handlers.yaml

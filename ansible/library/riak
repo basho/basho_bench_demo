@@ -1,0 +1,80 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# (c) 2012, Matt Wright <matt@nobien.net>
+#
+# This file is part of Ansible
+#
+# Ansible is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Ansible is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+DOCUMENTATION = '''
+---
+module: Riak
+short_description: Does Riaky things
+description:
+     - Gathers riak facts
+'''
+
+
+import os.path
+
+def _run(cmd):
+    # returns (rc, stdout, stderr) from shell command
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE, shell=True)
+    stdout, stderr = process.communicate()
+    return (process.returncode, stdout, stderr)
+
+
+def main():
+
+
+    ansible_facts = {}
+    arg_spec = dict(
+        ip=dict(required=False),
+        host_list=dict(required=False)
+    )
+
+    module = AnsibleModule(argument_spec=arg_spec)
+
+
+    ip = module.params['ip']
+    host_list=module.params['host_list'].split(',')
+    rc = 0
+    err = ''
+    out = ''
+
+
+    rc, out, err = _run('riak-admin member-status|grep ^valid|wc -l')
+    if rc == 0:
+        ansible_facts['riak_valid_nodes'] = out.replace('\n','')
+
+    rc, out, err = _run("riak-admin member-status|grep %s|awk '{print $1}'" % ip)
+    if rc == 0:
+        ansible_facts['riak_node_status'] = out.replace('\n','')
+
+
+    ansible_facts['riak_node_count'] = len(host_list)
+    changed = True
+
+    result = {"changed": changed,
+              "ansible_facts": ansible_facts }
+    module.exit_json(**result)
+
+
+# this is magic, see lib/ansible/module_common.py
+#<<INCLUDE_ANSIBLE_MODULE_COMMON>>
+
+main()

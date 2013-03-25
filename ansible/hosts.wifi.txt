@@ -1,0 +1,15 @@
+[riakprimary]
+10.0.8.133
+
+[riakmiddle]
+10.0.8.228
+10.0.8.230
+10.0.8.231
+
+[riaklast]
+10.0.8.233
+
+[riakservers:children]
+riakprimary
+riakmiddle
+riaklast

@@ -1,0 +1,22 @@
+---
+- hosts: riakservers
+  vars:
+    ip_addr: ${ansible_eth0.ipv4.address}
+    backend: bitcask
+  sudo: True
+  tasks:
+  - name: create wheel group
+    group: name=wheel state=present
+  - name: create users
+    user: >
+          name=ansible password=$5$rounds=80000$gm3dDVHxKYZrMYmd$.sJuhDeavsvATEKwl4eZutgA/El.W/uQmvYDRv5w1O8
+          state=present shell=/bin/bash force=yes
+  - name: adds users to wheel group
+    user: name=ansible groups=wheel append=yes
+  - name: add ssh keys
+    authorized_key: >
+          user=ansible
+          key="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDTmaFzxRSeleuSF5mzRlHcDwZdcvRMjXT47qx1gWp+DJncYE8f6GkkaOZ4JfOH8y8Fx0rxPEs5z5fLn3+SQiB6YEI4YRx55GoDvAIQnAlj0qtKNCvWKKVjzUKl/cxlBDIi8UEbg6s/IEbPUTja/RkyQENC6OTDrlf9C/fJ3ENPEA65ttjyEzj7C9Km9/L9fJuwOoQdQE34/2LBid7Onm6vmkScqK1XWvMoTHTHPKOrxBU3MdJ/f0W9hZ3Vj+zgZG0RaqOL7uXk2r8aQoUS4YZ7xDIErtm7Xdke67StonsrhK9nII9gyyDJBjqmXu6bwewGYIyt7KR/3DLSgD28LFlR"
+          state=present
+  - name: configure sudoers
+    copy: src=files/etc-sudoers dest=/etc/sudoers owner=root group=root mode=0440

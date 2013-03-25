@@ -1,0 +1,36 @@
+---
+- hosts: riakprimary
+  vars:
+    node_ip: ${ansible_eth0.ipv4.address}
+  sudo: True
+
+- hosts: riakmiddle
+  vars:
+    node_ip: ${ansible_eth0.ipv4.address}
+    primary_node_ip:  ${hostvars.${groups.riakprimary[0]}.ansible_eth0.ipv4.address}
+  sudo: True
+  tasks:
+  - name: Get custom riak facts
+    riak: ip=$node_ip host_list=${groups.riakservers}
+  - name: join riak cluster
+    command: riak-admin cluster join riak@${primary_node_ip}
+    when_string:  ${riak_valid_nodes} == '1' and ${riak_node_status} == 'valid'
+
+- hosts: riaklast
+  vars:
+    node_ip: ${ansible_eth0.ipv4.address}
+    primary_node_ip:  ${hostvars.${groups.riakprimary[0]}.ansible_eth0.ipv4.address}
+  sudo: True
+  tasks:
+  - name: Get custom riak facts
+    riak: ip=$node_ip host_list=${groups.riakservers}
+  - name: join riak cluster
+    command: riak-admin cluster join riak@${primary_node_ip}
+    when_string:  ${riak_valid_nodes} == '1' and ${riak_node_status} == 'valid'
+  - name: stage riak cluster
+    when_integer: ${riak_valid_nodes} != ${riak_node_count}
+    command: riak-admin cluster plan
+  - name: commit riak cluster
+    when_integer: ${riak_valid_nodes} != ${riak_node_count}
+    command: riak-admin cluster commit
+
