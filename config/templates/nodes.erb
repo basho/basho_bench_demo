@@ -1,0 +1,7 @@
+<% nodes = "" %>
+<% for val in 0...scope.lookupvar('::cluster_num_nodes').to_i %>
+  <% node_ip_address = (scope.lookupvar('::cluster_initial_octet').to_i + val).to_s %>
+  <% nodes += scope.lookupvar('::cluster_subnet').to_s + "." + node_ip_address + " " %>
+<% end %>
+NODES="<%= nodes.strip %>"
+

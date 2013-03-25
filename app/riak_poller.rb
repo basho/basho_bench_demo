@@ -8,6 +8,8 @@ require 'json'
 
 require '/opt/app/config.rb'
 
+POLL_INTERVAL=3
+
 statsd = Statsd.new
 riak_rpc_path = '/opt/app/riak_rpc_fetch'
 
@@ -74,5 +76,5 @@ loop do
     statsd.gauge("cluster.riak.object_count", object_count)
   end
 
-  sleep 1
+  sleep POLL_INTERVAL
 end

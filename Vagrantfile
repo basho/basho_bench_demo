@@ -41,7 +41,7 @@ Vagrant::Config.run do |config|
   } do |puppet|
     puppet.manifests_path = "config"
     puppet.manifest_file  = "site.pp"
-    puppet.options = ["--templatedir","/tmp/vagrant-puppet/manifests/templates"]
+    puppet.options = ["--templatedir","/vagrant/config/templates", "--fileserverconfig=/vagrant/config/fileserver.conf"]
   end
 
 end
