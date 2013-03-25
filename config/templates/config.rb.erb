@@ -1,0 +1,14 @@
+$nodes = {
+#  'node_1' => {:ip => 'IP_HERE'}, 
+#  'node_2' => {:ip => 'IP_HERE'}, 
+#  'node_3' => {:ip => 'IP_HERE'}, 
+#  'node_4' => {:ip => 'IP_HERE'},
+<% for val in 0...scope.lookupvar('::cluster_num_nodes').to_i %>
+  'node_<%= val.to_i + 1 %>' =>  { :ip => '<%= scope.lookupvar('::cluster_subnet') %>.<%= scope.lookupvar('::cluster_initial_octet').to_i + val %>' },
+<% end %>
+}
+
+$num_operations = 100000
+
+$basho_bench_path = '/opt/basho_bench'
+
