@@ -3,7 +3,7 @@
   vars:
     ip_addr: ${ansible_eth0.ipv4.address}
     backend: bitcask
-    version: 1.2.1
+    version: 1.3.0~precise1
   sudo: True
   tasks:
   - copy: src=files/ulimit dest=/etc/default/riak
@@ -17,7 +17,7 @@
   - mount: name=/ src=${rootvol.stdout} opts="noatime,barrier=0,errors=remount-ro" fstype=ext4 state=present
   - apt_key: url=http://apt.basho.com/gpg/basho.apt.key state=present
   - template: src=templates/basho.list dest=/etc/apt/sources.list.d/
-  - apt: pkg=riak=$version-1 update_cache=yes
+  - apt: pkg=riak=$version update_cache=yes
   - name: create sysctl.d
     file: dest=/etc/sysctl.d state=directory
   - name: configure sysctl

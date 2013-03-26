@@ -1,0 +1,22 @@
+#! /bin/bash -ex
+
+export ANSIBLE_HOSTS=`pwd`/hosts.wifi.txt
+key=../config/files/id_riak_rsa
+action=$1
+
+
+case "$1" in
+        bootstrap)
+            ansible-playbook -v -u ansible boostrap.yaml  --private-key=$key
+            ;;
+        install)
+            ansible-playbook  -v -u ansible install.yaml   --private-key=$key
+            ;;
+        join)
+            ansible-playbook  -v -u ansible cluster-join.yaml  --private-key=$key
+            ;;
+        purge) 
+            ansible-playbook  -v -u ansible purge.yaml  --private-key=$key
+            ;;
+
+esac
