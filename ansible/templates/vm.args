@@ -31,6 +31,7 @@
 +swt very_low
 +P 256000
 +zdbbl 65536
+-kernel net_ticktime 10
 
 ## Begin SSL distribution items, DO NOT DELETE OR EDIT THIS COMMENT
 

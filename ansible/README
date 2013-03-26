@@ -1,0 +1,18 @@
+Systems should be installed with Ubuntu Precise, with a user named "ansible", with password "password",
+that has sudo priviledges.
+
+host IPs are defined in hosts.txt
+
+Bootstrapping the nodes ensures there is an ansible user and it has the proper ssh keys
+Nodes are bootstrapped with the following:
+ansible-playbook -v -u ansible boostrap.yaml -i ./hosts.txt --private-key=../config/files/id_riak_rsa
+
+Riak is installed with the following:
+ansible-playbook -v -u ansible install.yaml -i ./hosts.txt --private-key=../config/files/id_riak_rsa
+
+A cluster is joined with the following:
+ansible-playbook -v -u ansible cluster-join.yaml -i ./hosts.txt --private-key=../config/files/id_riak_rsa
+
+To remove Riak:
+ansible-playbook -v -u ansible purge.yaml -i ./hosts.txt --private-key=../config/files/id_riak_rsa
+

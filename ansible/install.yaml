@@ -3,6 +3,7 @@
   vars:
     ip_addr: ${ansible_eth0.ipv4.address}
     backend: bitcask
+    version: 1.2.1
   sudo: True
   tasks:
   - copy: src=files/ulimit dest=/etc/default/riak
@@ -16,7 +17,7 @@
   - mount: name=/ src=${rootvol.stdout} opts="noatime,barrier=0,errors=remount-ro" fstype=ext4 state=present
   - apt_key: url=http://apt.basho.com/gpg/basho.apt.key state=present
   - template: src=templates/basho.list dest=/etc/apt/sources.list.d/
-  - apt: pkg=riak update_cache=yes
+  - apt: pkg=riak=$version-1 update_cache=yes
   - name: create sysctl.d
     file: dest=/etc/sysctl.d state=directory
   - name: configure sysctl
@@ -29,7 +30,7 @@
   - name: update limits file
     copy: src=files/riak-limits.d.conf dest=/etc/security/limits.d/riak.conf owner=root group=root mode=0644
   - name: configure app.config
-    template: src=templates/app.config dest=/etc/riak/app.config
+    template: src=templates/app.config.$version dest=/etc/riak/app.config
     tags: configfiles
   - name: configure vm.args
     template: src=templates/vm.args dest=/etc/riak/vm.args
