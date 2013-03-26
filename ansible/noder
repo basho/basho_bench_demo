@@ -9,6 +9,9 @@ case "$1" in
         bootstrap)
             ansible-playbook -v -u ansible boostrap.yaml  --private-key=$key
             ;;
+        clean)
+            ansible-playbook  -v -u ansible clean.yaml   --private-key=$key
+            ;;
         install)
             ansible-playbook  -v -u ansible install.yaml   --private-key=$key
             ;;
