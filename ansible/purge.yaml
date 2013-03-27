@@ -12,6 +12,7 @@
       - /var/lib/riak
       - /etc/riak
       - /var/log/riak
+      - /tmp/riak
     tags: riak purge
   - name: kill epmd
     command: pkill -u riak

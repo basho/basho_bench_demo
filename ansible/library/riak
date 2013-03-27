@@ -44,7 +44,8 @@ def main():
     ansible_facts = {}
     arg_spec = dict(
         ip=dict(required=False),
-        host_list=dict(required=False)
+        host_list=dict(required=False),
+        transfer_wait=dict(required=False, default=False)
     )
 
     module = AnsibleModule(argument_spec=arg_spec)
@@ -52,6 +53,7 @@ def main():
 
     ip = module.params['ip']
     host_list=module.params['host_list'].split(',')
+    transfer_wait=module.params['transfer_wait']
     rc = 0
     err = ''
     out = ''
@@ -71,6 +73,17 @@ def main():
 
     result = {"changed": changed,
               "ansible_facts": ansible_facts }
+
+
+
+    if transfer_wait:
+        rc = 0
+        err = ''
+        out = ''
+        while out.find('No transfers active') == -1:
+            rc, out, err = _run('riak-admin transfers')
+            time.sleep(10)
+
     module.exit_json(**result)
 
 

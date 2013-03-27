@@ -33,4 +33,7 @@
   - name: commit riak cluster
     when_integer: ${riak_valid_nodes} != ${riak_node_count}
     command: riak-admin cluster commit
-
+  - name: wait for transfers to complete
+    riak: ip=$node_ip host_list=${groups.riakservers} transfer_wait=true
+    async: 300
+    poll: 10

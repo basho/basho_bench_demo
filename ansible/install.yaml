@@ -4,6 +4,7 @@
     ip_addr: ${ansible_eth0.ipv4.address}
     backend: bitcask
     version: 1.3.0~precise1
+#    version: 1.2.1-1
   sudo: True
   tasks:
   - copy: src=files/ulimit dest=/etc/default/riak
@@ -37,6 +38,7 @@
     tags: configfiles
   - name: start riak
     service: name=riak state=started
-  - wait_for: host=$ip_addr port=8098 state=started timeout=30
+  - command: riak-admin wait-for-service riak_kv riak@$ip_addr
+  - command: riak-admin test
   handlers:
   - include: handlers/handlers.yaml

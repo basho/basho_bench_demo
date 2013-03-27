@@ -18,3 +18,10 @@
     ignore_errors: True
   - name: starting riak
     service: name=riak state=started
+- hosts: riaklast
+  sudo: True
+  tasks:
+  - name: wait for transfers to complete
+    riak: ip=$node_ip host_list=${groups.riakservers} transfer_wait=true
+    async: 300
+    poll: 10
